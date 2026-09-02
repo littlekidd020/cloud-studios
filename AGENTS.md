@@ -24,6 +24,8 @@ Keep proof-row icon circles visibly inset from every outer edge and column divid
 
 Keep the global header fixed to the viewport: it stays visible at the top, hides during deliberate downward scrolling, and returns promptly when the user scrolls upward. Keep it visible whenever the navigation menu or keyboard focus is active.
 
+Render the full-screen navigation as a document-level viewport overlay, independent of the transformed sticky header, so page sections never bleed through or become part of the menu scroll on any breakpoint.
+
 On phone widths, keep the verified Cloud Studios phone number in an edge-to-edge call bar fixed to the bottom of the viewport. Reserve footer space for it and suppress the bar while the full-screen navigation menu is open.
 
 Keep the cream editorial system intact during product audits. Put service-specific actions, verified prices, capacities, inclusions and availability ahead of generic promotional copy, and never invent business hours, response times, policies or social proof to fill a content gap.

@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { BrowserRouter, Link, NavLink, Route, Routes, useLocation } from "react-router-dom";
 import {
   ArrowDown, ArrowRight, Briefcase, CalendarBlank, CaretDown, Check,
@@ -233,24 +234,28 @@ function Header({ menuOpen, setMenuOpen }) {
   const mainMenuRoutes = routes.slice(0, 9);
   const utilityMenuRoutes = routes.slice(9);
   const headerClasses = ["site-header", menuOpen && "menu-open", header.scrolled && "is-scrolled", header.hidden && !menuOpen && "is-hidden"].filter(Boolean).join(" ");
-  return <header className={headerClasses} onFocusCapture={header.show}>
-    <Link className="brand" to="/" aria-label="Cloud Studios home" tabIndex={menuOpen ? -1 : undefined}><img src={assets.logo} alt="Cloud Studios" decoding="async" /></Link>
-    <nav className="desktop-nav" aria-label="Primary navigation">
-      <div className="nav-dropdown">
-        <NavLink to="/office-suites">Offices & desks <CaretDown size={13} weight="bold" /></NavLink>
-        <div className="dropdown-panel"><NavLink to="/office-suites">Office suites</NavLink><NavLink to="/dedicated-desks">Dedicated desks</NavLink></div>
-      </div>
-      {primaryNav.map(([path, label]) => path.includes("#") ? <a key={path} href={path}>{label}</a> : <NavLink key={path} to={path}>{label}</NavLink>)}
-    </nav>
-    <div className="header-actions">
-      <Link className="dark-button header-tour" to="/book-a-tour" aria-label="Book a tour"><CalendarBlank size={20} /><span>Book a tour</span></Link>
-      <button ref={toggleRef} className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-controls="mobile-menu" aria-label={menuOpen ? "Close menu" : "Open menu"}>{menuOpen ? <X /> : <List />}</button>
-    </div>
-    <div ref={menuRef} id="mobile-menu" className={`mobile-menu ${menuOpen ? "is-open" : ""}`} aria-hidden={!menuOpen} role="dialog" aria-modal="true" aria-label="Site navigation">
+  const menu = <div ref={menuRef} id="mobile-menu" className={`mobile-menu ${menuOpen ? "is-open" : ""}`} aria-hidden={!menuOpen} role="dialog" aria-modal="true" aria-label="Site navigation">
       <nav aria-label="Mobile navigation">{mainMenuRoutes.map(([path, label], index) => <NavLink key={path} to={path}><span>{String(index + 1).padStart(2, "0")}</span>{label}</NavLink>)}</nav>
       <div className="mobile-menu-meta"><nav className="mobile-utility" aria-label="Information navigation">{utilityMenuRoutes.map(([path, label]) => <NavLink key={path} to={path}>{label}</NavLink>)}</nav><div className="mobile-contact"><a href={contact.phoneHref}>{contact.phone}</a><a href={`mailto:${contact.email}`}>{contact.email}</a></div></div>
-    </div>
-  </header>;
+    </div>;
+
+  return <>
+    <header className={headerClasses} onFocusCapture={header.show}>
+      <Link className="brand" to="/" aria-label="Cloud Studios home" tabIndex={menuOpen ? -1 : undefined}><img src={assets.logo} alt="Cloud Studios" decoding="async" /></Link>
+      <nav className="desktop-nav" aria-label="Primary navigation">
+        <div className="nav-dropdown">
+          <NavLink to="/office-suites">Offices & desks <CaretDown size={13} weight="bold" /></NavLink>
+          <div className="dropdown-panel"><NavLink to="/office-suites">Office suites</NavLink><NavLink to="/dedicated-desks">Dedicated desks</NavLink></div>
+        </div>
+        {primaryNav.map(([path, label]) => path.includes("#") ? <a key={path} href={path}>{label}</a> : <NavLink key={path} to={path}>{label}</NavLink>)}
+      </nav>
+      <div className="header-actions">
+        <Link className="dark-button header-tour" to="/book-a-tour" aria-label="Book a tour"><CalendarBlank size={20} /><span>Book a tour</span></Link>
+        <button ref={toggleRef} className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-controls="mobile-menu" aria-label={menuOpen ? "Close menu" : "Open menu"}>{menuOpen ? <X /> : <List />}</button>
+      </div>
+    </header>
+    {createPortal(menu, document.body)}
+  </>;
 }
 
 function Home() {
