@@ -95,6 +95,7 @@ function Site() {
       </Routes>
     </main>
     <Footer />
+    <MobileCallBar menuOpen={menuOpen} />
   </>;
 }
 
@@ -432,4 +433,8 @@ function Footer() {
   const serviceLinks = routes.slice(1, 7);
   const detailLinks = routes.slice(7);
   return <footer className="site-footer"><div className="footer-lead"><img src={assets.logo} alt="Cloud Studios" loading="lazy" decoding="async" /><h2>A calmer place<br />to do <em>good work.</em></h2></div><div className="footer-links"><div><p>Workspaces</p>{serviceLinks.map(([path, label]) => <Link key={path} to={path}>{label}</Link>)}</div><div><p>Information</p>{detailLinks.map(([path, label]) => <Link key={path} to={path}>{label}</Link>)}</div><div><p>Visit</p><address>{contact.address}</address><a href={contact.phoneHref}>{contact.phone}</a><a href={`mailto:${contact.email}`}>{contact.email}</a></div></div><div className="footer-base"><span>Cloud Studios · {contact.company}</span><span>© {new Date().getFullYear()} Cloud Studios</span></div></footer>;
+}
+
+function MobileCallBar({ menuOpen }) {
+  return <a className={`mobile-call-bar ${menuOpen ? "is-suppressed" : ""}`} href={contact.phoneHref} aria-label={`Call Cloud Studios on ${contact.phone}`} aria-hidden={menuOpen} tabIndex={menuOpen ? -1 : undefined}><Phone weight="bold" /><span>Call us on {contact.phone}</span></a>;
 }
