@@ -43,7 +43,7 @@ if (!$logged) {
   cs_fail(503, 'We could not safely record your enquiry right now. Please call 09 218 8670 or email admin@cloudstudios.co.nz.', $isAjax);
 }
 
-$plainHeaders = "Reply-To: {$email}\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit";
+$plainHeaders = "Reply-To: {$email}\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: quoted-printable";
 $adminBody =
   "New enquiry received:\n\n" .
   "Request ID: {$requestId}\n" .
@@ -53,28 +53,41 @@ $adminBody =
   "Subject: {$subject}\n\n" .
   "Message:\n{$message}\n";
 
-$adminMailOk = cs_send_message(
+$adminMail = cs_send_message(
   'enquiry-admin',
   $requestId,
   (string) $config['admin_to'],
   'New Enquiry — Cloud Studios',
-  $adminBody,
+  quoted_printable_encode($adminBody),
   $plainHeaders
 );
 
-$customerBody =
-  "Hi {$name},\n\n" .
-  "Thanks — we’ve received your enquiry and will get back to you shortly.\n\n" .
-  "If it’s urgent, call 09-218 8670.\n\n" .
-  "Kind regards,\nCloud Studios\nLevel 2, 109 Great South Road\nEpsom, Auckland 1051, New Zealand\ncloudstudios.co.nz\n\n" .
-  "Your enquiry details:\nSubject: {$subject}\nPhone: " . ($phone !== '' ? $phone : '-') . "\nMessage:\n{$message}\n";
-$customerHeaders = "Reply-To: admin@cloudstudios.co.nz\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit";
-cs_send_message('enquiry-customer', $requestId, $email, 'Your Cloud Studios Enquiry', $customerBody, $customerHeaders);
-
-if (!$adminMailOk) {
-  cs_fail(503, 'Your details were safely recorded, but we could not email your enquiry right now. Please call 09 218 8670 or email admin@cloudstudios.co.nz.', $isAjax);
+if (!$adminMail['ok']) {
+  cs_fail(
+    503,
+    'Your enquiry was safely recorded, but the team notification could not be delivered. Please do not resubmit. Call 09 218 8670 or email admin@cloudstudios.co.nz and quote your reference.',
+    $isAjax,
+    array('request_id' => $requestId)
+  );
 }
 
-if ($isAjax) cs_json_response(200, array('ok' => true, 'request_id' => $requestId));
-header('Location: /contact?sent=1', true, 303);
+$customerBody =
+  "Hi {$name},\n\n" .
+  "Thanks — Cloud Studios has received your enquiry. The team will review your details and reply directly.\n\n" .
+  "Reference: {$requestId}\n\n" .
+  "If it’s urgent, call 09 218 8670.\n\n" .
+  "Kind regards,\nCloud Studios\nLevel 2, 109 Great South Road\nEpsom, Auckland 1051, New Zealand\ncloudstudios.co.nz\n\n" .
+  "Your enquiry details:\nSubject: {$subject}\nPhone: " . ($phone !== '' ? $phone : '-') . "\nMessage:\n{$message}\n";
+$customerHeaders = "Reply-To: admin@cloudstudios.co.nz\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: quoted-printable";
+$customerMail = cs_send_message('enquiry-customer', $requestId, $email, 'Your Cloud Studios Enquiry', quoted_printable_encode($customerBody), $customerHeaders);
+$confirmationSent = (bool) $customerMail['ok'];
+
+if ($isAjax) {
+  cs_json_response(200, array(
+    'ok' => true,
+    'request_id' => $requestId,
+    'confirmation_sent' => $confirmationSent,
+  ));
+}
+header('Location: /contact?sent=1&confirmation=' . ($confirmationSent ? '1' : '0') . '&ref=' . rawurlencode($requestId), true, 303);
 exit;

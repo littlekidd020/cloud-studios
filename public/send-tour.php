@@ -64,8 +64,17 @@ $adminBody =
   "Preferred date & time: {$preferredPretty}\n" .
   "Interest: {$interest}\n\n" .
   "Team requirements:\n" . ($message !== '' ? $message : '-') . "\n";
-$adminHeaders = "Reply-To: {$email}\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit";
-$adminMailOk = cs_send_message('tour-admin', $requestId, (string) $config['admin_to'], 'New Book a Tour Request — Cloud Studios', $adminBody, $adminHeaders);
+$adminHeaders = "Reply-To: {$email}\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: quoted-printable";
+$adminMail = cs_send_message('tour-admin', $requestId, (string) $config['admin_to'], 'New Book a Tour Request — Cloud Studios', quoted_printable_encode($adminBody), $adminHeaders);
+
+if (!$adminMail['ok']) {
+  cs_fail(
+    503,
+    'Your tour request was safely recorded, but the team notification could not be delivered. Please do not resubmit. Call 09 218 8670 or email admin@cloudstudios.co.nz and quote your reference.',
+    $isAjax,
+    array('request_id' => $requestId)
+  );
+}
 
 $calendar = implode("\r\n", array(
   'BEGIN:VCALENDAR',
@@ -78,10 +87,14 @@ $calendar = implode("\r\n", array(
   'DTSTAMP:' . gmdate('Ymd\THis\Z'),
   'DTSTART:' . $dateTimeUtcStart->format('Ymd\THis\Z'),
   'DTEND:' . $dateTimeUtcEnd->format('Ymd\THis\Z'),
+  'ORGANIZER;CN=Cloud Studios:mailto:' . $config['from_email'],
+  'ATTENDEE;CN=' . str_replace(array('\\', ';', ','), array('\\\\', '\\;', '\\,'), $name) . ';ROLE=REQ-PARTICIPANT;RSVP=TRUE:mailto:' . $email,
   'SUMMARY:Cloud Studios Tour Request',
   'LOCATION:Level 2\, 109 Great South Road\, Epsom\, Auckland 1051\, New Zealand',
-  'DESCRIPTION:Requested tour time. Cloud Studios will contact you to confirm availability.',
+  'DESCRIPTION:Tentative tour time requested. Cloud Studios will contact you to confirm availability.',
   'STATUS:TENTATIVE',
+  'SEQUENCE:0',
+  'TRANSP:OPAQUE',
   'END:VEVENT',
   'END:VCALENDAR',
 )) . "\r\n";
@@ -89,23 +102,28 @@ $calendar = implode("\r\n", array(
 $customerMessage =
   "Hi {$name},\n\n" .
   "Thanks — we’ve received your Cloud Studios tour request.\nWe’ll be in touch to confirm the time.\n\n" .
+  "Reference: {$requestId}\n\n" .
   "Preferred date & time:\n{$preferredPretty}\n\n" .
+  "A tentative calendar invitation is attached. The requested time is not confirmed until Cloud Studios contacts you.\n\n" .
   "Location:\nLevel 2, 109 Great South Road\nEpsom, Auckland 1051\nNew Zealand\n\n" .
   "For urgent enquiries, call 09-218 8670.\n\nKind regards,\nCloud Studios\ncloudstudios.co.nz\n";
 $boundary = 'CSBOUNDARY' . md5($requestId . microtime(true));
 $customerHeaders = "Reply-To: admin@cloudstudios.co.nz\r\nContent-Type: multipart/mixed; boundary=\"{$boundary}\"";
 $customerBody = "--{$boundary}\r\n";
-$customerBody .= "Content-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n{$customerMessage}\r\n";
+$customerBody .= "Content-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n" . quoted_printable_encode($customerMessage) . "\r\n";
 $customerBody .= "--{$boundary}\r\n";
 $customerBody .= "Content-Type: text/calendar; method=REQUEST; charset=UTF-8; name=\"Cloud-Studios-Tour.ics\"\r\n";
 $customerBody .= "Content-Disposition: attachment; filename=\"Cloud-Studios-Tour.ics\"\r\nContent-Transfer-Encoding: base64\r\n\r\n";
 $customerBody .= chunk_split(base64_encode($calendar)) . "\r\n--{$boundary}--\r\n";
-cs_send_message('tour-customer', $requestId, $email, 'Your Cloud Studios Tour Request', $customerBody, $customerHeaders);
+$customerMail = cs_send_message('tour-customer', $requestId, $email, 'Your Cloud Studios Tour Request', $customerBody, $customerHeaders);
+$confirmationSent = (bool) $customerMail['ok'];
 
-if (!$adminMailOk) {
-  cs_fail(503, 'Your details were safely recorded, but we could not email your tour request right now. Please call 09 218 8670 or email admin@cloudstudios.co.nz.', $isAjax);
+if ($isAjax) {
+  cs_json_response(200, array(
+    'ok' => true,
+    'request_id' => $requestId,
+    'confirmation_sent' => $confirmationSent,
+  ));
 }
-
-if ($isAjax) cs_json_response(200, array('ok' => true, 'request_id' => $requestId));
-header('Location: /book-a-tour?sent=1', true, 303);
+header('Location: /book-a-tour?sent=1&confirmation=' . ($confirmationSent ? '1' : '0') . '&ref=' . rawurlencode($requestId), true, 303);
 exit;

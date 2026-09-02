@@ -355,7 +355,8 @@ function EnquiryForm({ type }) {
   const location = useLocation();
   const [status, setStatus] = useState(() => new URLSearchParams(location.search).get("sent") === "1" ? "success" : "idle");
   const [serverError, setServerError] = useState("");
-  const [requestId, setRequestId] = useState("");
+  const [requestId, setRequestId] = useState(() => new URLSearchParams(location.search).get("ref") || "");
+  const [confirmationSent, setConfirmationSent] = useState(() => new URLSearchParams(location.search).get("confirmation") !== "0");
   const summaryRef = useRef(null);
   const successRef = useRef(null);
   const resetPending = useRef(false);
@@ -379,6 +380,8 @@ function EnquiryForm({ type }) {
     const params = new URLSearchParams(location.search);
     if (params.get("sent") !== "1") return;
     params.delete("sent");
+    params.delete("confirmation");
+    params.delete("ref");
     const query = params.toString();
     window.history.replaceState({}, document.title, `${location.pathname}${query ? `?${query}` : ""}${location.hash}`);
   }, [location.hash, location.pathname, location.search]);
@@ -405,8 +408,9 @@ function EnquiryForm({ type }) {
         headers: { Accept: "application/json", "X-Requested-With": "XMLHttpRequest" },
       });
       const payload = await response.json().catch(() => ({}));
+      if (payload.request_id) setRequestId(payload.request_id);
       if (!response.ok || !payload.ok) throw new Error(payload.error || "The form could not be sent. Please try again.");
-      setRequestId(payload.request_id || "");
+      setConfirmationSent(payload.confirmation_sent !== false);
       setStatus("success");
       emitIntent("form_submit_success", { form: type });
     } catch (error) {
@@ -422,18 +426,19 @@ function EnquiryForm({ type }) {
     setErrors({});
     setServerError("");
     setRequestId("");
+    setConfirmationSent(true);
     setStatus("idle");
   }
 
   const fieldLabels = { name: "Name", email: "Email", preferred_datetime: "Preferred date and time", interest: "Service interest", subject: "Subject", message: "Message" };
 
-  if (status === "success") return <div ref={successRef} className="success-state" role="status" aria-live="polite" tabIndex="-1"><span><Check /></span><p className="eyebrow">Request received</p><h2>{isTour ? "Your tour request is with the team." : "Thanks — your enquiry is with the team."}</h2><p>Cloud Studios will review your details and reply directly.{requestId && <> Your reference is <strong>{requestId}</strong>.</>}</p><div className="button-row"><button className="primary-button" type="button" onClick={reset}>Send another</button><a className="text-link" href={`mailto:${contact.email}`}>Email the team <ArrowRight /></a></div></div>;
+  if (status === "success") return <div ref={successRef} className="success-state" role="status" aria-live="polite" tabIndex="-1"><span><Check /></span><p className="eyebrow">Request received</p><h2>{isTour ? "Your tour request is with the team." : "Thanks — your enquiry is with the team."}</h2><p>Cloud Studios will review your details and reply directly.{requestId && <> Your reference is <strong>{requestId}</strong>.</>}</p><p>{confirmationSent ? (isTour ? "A confirmation and tentative calendar invitation have been emailed to you." : "A confirmation has been emailed to you.") : "Your request reached the team, but the confirmation email could not be sent. Please keep your reference and check your email address before sending another request."}</p><div className="button-row"><button className="primary-button" type="button" onClick={reset}>Send another</button><a className="text-link" href={`mailto:${contact.email}`}>Email the team <ArrowRight /></a></div></div>;
 
   return <form className="editorial-form" action={isTour ? "/send-tour.php" : "/send-enquiry.php"} method="post" onSubmit={submit} onFocusCapture={() => { if (!started.current) { started.current = true; emitIntent("form_start", { form: type }); } }} noValidate aria-labelledby={`${type}-form-title`} aria-busy={status === "submitting"}>
     <label className="honeypot" aria-hidden="true">Leave this field empty<input name="website" type="text" tabIndex="-1" autoComplete="off" /></label>
     <div className="form-intro"><p className="eyebrow">{isTour ? "Your visit" : "Your enquiry"}</p><h2 id={`${type}-form-title`} tabIndex="-1">{isTour ? "Tell us what suits you." : "How can we help?"}</h2><p>Required fields are marked with an asterisk. Cloud Studios will confirm availability directly.</p></div>
     {Object.keys(errors).length > 0 && <div ref={summaryRef} className="form-error-summary" role="alert" tabIndex="-1"><strong>Please check {Object.keys(errors).length} {Object.keys(errors).length === 1 ? "field" : "fields"}.</strong><ul>{Object.keys(errors).map((name) => <li key={name}><a href={`#${name}`}>{fieldLabels[name]}: {errors[name]}</a></li>)}</ul></div>}
-    {serverError && <div ref={summaryRef} className="form-error-summary" role="alert" tabIndex="-1"><strong>We couldn’t send the form.</strong><p>{serverError}</p></div>}
+    {serverError && <div ref={summaryRef} className="form-error-summary" role="alert" tabIndex="-1"><strong>We couldn’t send the form.</strong><p>{serverError}</p>{requestId && <p>Your saved reference is <strong>{requestId}</strong>.</p>}</div>}
     <div className="field-row"><Field name="name" label="Name" required error={errors.name} autoComplete="name" /><Field name="phone" label="Phone" type="tel" error={errors.phone} autoComplete="tel" /></div>
     <Field name="email" label="Email" type="email" required error={errors.email} autoComplete="email" />
     {isTour ? <><Field name="preferred_datetime" label="Preferred date and time" type="datetime-local" required error={errors.preferred_datetime} /><label className="field" htmlFor="interest"><span>Service interest <b aria-hidden="true">*</b></span><select id="interest" name="interest" required aria-required="true" aria-invalid={Boolean(errors.interest)} aria-describedby={errors.interest ? "interest-error" : undefined} aria-errormessage={errors.interest ? "interest-error" : undefined} defaultValue={tourInterests.includes(requestedInterest) ? requestedInterest : ""}><option value="">Choose an option</option>{tourInterests.map((interest) => <option key={interest}>{interest}</option>)}</select>{errors.interest && <small id="interest-error">{errors.interest}</small>}</label><label className="field" htmlFor="message"><span>Team requirements</span><textarea id="message" name="message" rows="5" placeholder="Tell us your team size and needs" /></label></> : <><Field name="subject" label="Subject" required error={errors.subject} defaultValue={requestedInterest ? `${requestedInterest} enquiry` : ""} /><label className="field" htmlFor="message"><span>Message <b aria-hidden="true">*</b></span><textarea id="message" name="message" rows="6" required aria-required="true" aria-invalid={Boolean(errors.message)} aria-describedby={errors.message ? "message-error" : undefined} aria-errormessage={errors.message ? "message-error" : undefined} />{errors.message && <small id="message-error">{errors.message}</small>}</label></>}

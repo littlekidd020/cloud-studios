@@ -49,7 +49,7 @@ test("intent instrumentation classifies conversion links", () => {
   assert.equal(classifyIntent("/faq"), "");
 });
 
-test("production form handlers retain the legacy delivery and storage contract", () => {
+test("production form handlers require authenticated SMTP and preserve delivery outcomes", () => {
   const common = readFileSync(new URL("../public/includes/form-common.php", import.meta.url), "utf8");
   const enquiry = readFileSync(new URL("../public/send-enquiry.php", import.meta.url), "utf8");
   const tour = readFileSync(new URL("../public/send-tour.php", import.meta.url), "utf8");
@@ -57,11 +57,20 @@ test("production form handlers retain the legacy delivery and storage contract",
   assert.match(common, /private\/cloud-studios-forms/);
   assert.match(common, /CS_SMTP_PASSWORD/);
   assert.doesNotMatch(common, /'smtp_password'\s*=>\s*'[^']+'/);
+  assert.doesNotMatch(common, /cs_php_mail_send/);
+  assert.doesNotMatch(common, /@mail\s*\(/);
+  assert.match(common, /smtp_not_configured/);
+  assert.match(common, /'transport'\s*=>\s*'smtp'/);
   assert.match(enquiry, /cs_log_submission\('enquiry'/);
   assert.match(enquiry, /enquiry-admin/);
   assert.match(enquiry, /enquiry-customer/);
+  assert.match(enquiry, /confirmation_sent/);
   assert.match(tour, /cs_log_submission\('tour'/);
   assert.match(tour, /Content-Type: text\/calendar/);
+  assert.match(tour, /ORGANIZER;CN=Cloud Studios/);
+  assert.match(tour, /ATTENDEE;CN=/);
+  assert.match(tour, /STATUS:TENTATIVE/);
   assert.match(tour, /tour-admin/);
   assert.match(tour, /tour-customer/);
+  assert.match(tour, /confirmation_sent/);
 });
