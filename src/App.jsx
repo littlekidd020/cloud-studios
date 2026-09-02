@@ -140,9 +140,53 @@ function emitIntent(type, detail = {}) {
   window.dispatchEvent(new CustomEvent("cloudstudios:intent", { detail: { type, path: window.location.pathname, ...detail } }));
 }
 
+function useDirectionalHeader(menuOpen) {
+  const [hidden, setHidden] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const previousY = useRef(0);
+  const frame = useRef(0);
+
+  useEffect(() => {
+    previousY.current = Math.max(window.scrollY, 0);
+    setScrolled(previousY.current > 18);
+    if (menuOpen) setHidden(false);
+
+    function update() {
+      const currentY = Math.max(window.scrollY, 0);
+      const delta = currentY - previousY.current;
+      setScrolled(currentY > 18);
+
+      if (menuOpen || currentY <= 18) {
+        setHidden(false);
+        previousY.current = currentY;
+      } else if (delta > 6 && currentY > 96) {
+        setHidden(true);
+        previousY.current = currentY;
+      } else if (delta < -4) {
+        setHidden(false);
+        previousY.current = currentY;
+      }
+      frame.current = 0;
+    }
+
+    function onScroll() {
+      if (!frame.current) frame.current = window.requestAnimationFrame(update);
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame.current) window.cancelAnimationFrame(frame.current);
+    };
+  }, [menuOpen]);
+
+  return { hidden, scrolled, show: () => setHidden(false) };
+}
+
 function Header({ menuOpen, setMenuOpen }) {
   const toggleRef = useRef(null);
   const menuRef = useRef(null);
+  const header = useDirectionalHeader(menuOpen);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -187,7 +231,8 @@ function Header({ menuOpen, setMenuOpen }) {
 
   const mainMenuRoutes = routes.slice(0, 9);
   const utilityMenuRoutes = routes.slice(9);
-  return <header className={`site-header ${menuOpen ? "menu-open" : ""}`}>
+  const headerClasses = ["site-header", menuOpen && "menu-open", header.scrolled && "is-scrolled", header.hidden && !menuOpen && "is-hidden"].filter(Boolean).join(" ");
+  return <header className={headerClasses} onFocusCapture={header.show}>
     <Link className="brand" to="/" aria-label="Cloud Studios home" tabIndex={menuOpen ? -1 : undefined}><img src={assets.logo} alt="Cloud Studios" decoding="async" /></Link>
     <nav className="desktop-nav" aria-label="Primary navigation">
       <div className="nav-dropdown">
