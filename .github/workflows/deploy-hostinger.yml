@@ -38,6 +38,9 @@ jobs:
       - name: Run Sites worker tests
         run: npm run test:sites
 
+      - name: Write deployment marker
+        run: printf '%s\n' "$GITHUB_SHA" > dist/client/deployment.txt
+
       - name: Publish Hostinger-ready files
         uses: peaceiris/actions-gh-pages@v4.1.0
         with:
