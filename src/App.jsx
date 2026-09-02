@@ -337,23 +337,25 @@ function TourBand() {
 }
 
 function ContactPage() {
-  return <><section className="form-page-heading"><p className="eyebrow">Contact Cloud Studios</p><h1 tabIndex="-1">Let’s start a<br /><em>conversation.</em></h1><p>Tell us what you need and the team will point you towards the right option.</p></section><section id="enquiry" className="form-layout section-shell"><ContactCard /><DemoForm type="contact" /></section><LocationSection /></>;
+  return <><section className="form-page-heading"><p className="eyebrow">Contact Cloud Studios</p><h1 tabIndex="-1">Let’s start a<br /><em>conversation.</em></h1><p>Tell us what you need and the team will point you towards the right option.</p></section><section id="enquiry" className="form-layout section-shell"><ContactCard /><EnquiryForm type="contact" /></section><LocationSection /></>;
 }
 
 function TourPage() {
-  return <><section className="form-page-heading"><p className="eyebrow">Visit Cloud Studios</p><h1 tabIndex="-1">Book a<br /><em>personal tour.</em></h1><p>See the workspace, ask questions and get a feel for which option suits you.</p></section><section id="tour-form" className="form-layout section-shell"><ContactCard tour /><DemoForm type="tour" /></section></>;
+  return <><section className="form-page-heading"><p className="eyebrow">Visit Cloud Studios</p><h1 tabIndex="-1">Book a<br /><em>personal tour.</em></h1><p>See the workspace, ask questions and get a feel for which option suits you.</p></section><section id="tour-form" className="form-layout section-shell"><ContactCard tour /><EnquiryForm type="tour" /></section></>;
 }
 
 function ContactCard({ tour = false }) {
   return <aside className="contact-card"><img src={tour ? assets.meetingFour : assets.building} alt={tour ? "Cloud Studios meeting area" : "Cloud Studios exterior"} loading="lazy" decoding="async" /><div><p>{tour ? "Most tours take 10–15 minutes and there is no commitment." : "Prefer to contact the team directly?"}</p><small>Cloud Studios confirms availability directly.</small><a href={contact.phoneHref}><Phone />{contact.phone}</a><a href={`mailto:${contact.email}`}><EnvelopeSimple />{contact.email}</a><a href={contact.maps} target="_blank" rel="noreferrer"><MapPin />Get directions</a></div></aside>;
 }
 
-function DemoForm({ type }) {
+function EnquiryForm({ type }) {
   const isTour = type === "tour";
   const required = isTour ? ["name", "email", "preferred_datetime", "interest"] : ["name", "email", "subject", "message"];
   const [errors, setErrors] = useState({});
-  const [submitted, setSubmitted] = useState(false);
   const location = useLocation();
+  const [status, setStatus] = useState(() => new URLSearchParams(location.search).get("sent") === "1" ? "success" : "idle");
+  const [serverError, setServerError] = useState("");
+  const [requestId, setRequestId] = useState("");
   const summaryRef = useRef(null);
   const successRef = useRef(null);
   const resetPending = useRef(false);
@@ -362,26 +364,55 @@ function DemoForm({ type }) {
   const tourInterests = ["Dedicated Desks", "Office Suites", "Meeting Rooms", "Virtual Office", "Not sure — recommend me"];
 
   useEffect(() => {
-    if (Object.keys(errors).length) summaryRef.current?.focus();
-  }, [errors]);
+    if (Object.keys(errors).length || serverError) summaryRef.current?.focus();
+  }, [errors, serverError]);
 
   useEffect(() => {
-    if (submitted) successRef.current?.focus();
+    if (status === "success") successRef.current?.focus();
     else if (resetPending.current) {
       resetPending.current = false;
       document.getElementById(`${type}-form-title`)?.focus();
     }
-  }, [submitted, type]);
+  }, [status, type]);
 
-  function submit(event) {
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("sent") !== "1") return;
+    params.delete("sent");
+    const query = params.toString();
+    window.history.replaceState({}, document.title, `${location.pathname}${query ? `?${query}` : ""}${location.hash}`);
+  }, [location.hash, location.pathname, location.search]);
+
+  async function submit(event) {
     event.preventDefault();
-    const values = Object.fromEntries(new FormData(event.currentTarget));
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const values = Object.fromEntries(formData);
     const nextErrors = validateForm(values, required);
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length) emitIntent("form_validation_error", { form: type, count: Object.keys(nextErrors).length });
-    else {
-      emitIntent("form_demo_success", { form: type });
-      setSubmitted(true);
+    setServerError("");
+    if (Object.keys(nextErrors).length) {
+      emitIntent("form_validation_error", { form: type, count: Object.keys(nextErrors).length });
+      return;
+    }
+
+    setStatus("submitting");
+    formData.set("_ajax", "1");
+    try {
+      const response = await fetch(isTour ? "/send-tour.php" : "/send-enquiry.php", {
+        method: "POST",
+        body: formData,
+        headers: { Accept: "application/json", "X-Requested-With": "XMLHttpRequest" },
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload.ok) throw new Error(payload.error || "The form could not be sent. Please try again.");
+      setRequestId(payload.request_id || "");
+      setStatus("success");
+      emitIntent("form_submit_success", { form: type });
+    } catch (error) {
+      setServerError(error instanceof Error ? error.message : "The form could not be sent. Please try again.");
+      setStatus("error");
+      emitIntent("form_submit_error", { form: type });
     }
   }
 
@@ -389,21 +420,25 @@ function DemoForm({ type }) {
     resetPending.current = true;
     started.current = false;
     setErrors({});
-    setSubmitted(false);
+    setServerError("");
+    setRequestId("");
+    setStatus("idle");
   }
 
   const fieldLabels = { name: "Name", email: "Email", preferred_datetime: "Preferred date and time", interest: "Service interest", subject: "Subject", message: "Message" };
 
-  if (submitted) return <div ref={successRef} className="success-state" role="status" aria-live="polite" tabIndex="-1"><span><Check /></span><p className="eyebrow">Demo complete</p><h2>Thanks — the form works.</h2><p><strong>Demo—no information was sent.</strong> Contact Cloud Studios directly to make a real enquiry.</p><div className="button-row"><button className="primary-button" type="button" onClick={reset}>Reset form</button><a className="text-link" href={`mailto:${contact.email}`}>Email the team <ArrowRight /></a></div></div>;
+  if (status === "success") return <div ref={successRef} className="success-state" role="status" aria-live="polite" tabIndex="-1"><span><Check /></span><p className="eyebrow">Request received</p><h2>{isTour ? "Your tour request is with the team." : "Thanks — your enquiry is with the team."}</h2><p>Cloud Studios will review your details and reply directly.{requestId && <> Your reference is <strong>{requestId}</strong>.</>}</p><div className="button-row"><button className="primary-button" type="button" onClick={reset}>Send another</button><a className="text-link" href={`mailto:${contact.email}`}>Email the team <ArrowRight /></a></div></div>;
 
-  return <form className="editorial-form" onSubmit={submit} onFocusCapture={() => { if (!started.current) { started.current = true; emitIntent("form_start", { form: type }); } }} noValidate aria-labelledby={`${type}-form-title`}>
+  return <form className="editorial-form" action={isTour ? "/send-tour.php" : "/send-enquiry.php"} method="post" onSubmit={submit} onFocusCapture={() => { if (!started.current) { started.current = true; emitIntent("form_start", { form: type }); } }} noValidate aria-labelledby={`${type}-form-title`} aria-busy={status === "submitting"}>
+    <label className="honeypot" aria-hidden="true">Leave this field empty<input name="website" type="text" tabIndex="-1" autoComplete="off" /></label>
     <div className="form-intro"><p className="eyebrow">{isTour ? "Your visit" : "Your enquiry"}</p><h2 id={`${type}-form-title`} tabIndex="-1">{isTour ? "Tell us what suits you." : "How can we help?"}</h2><p>Required fields are marked with an asterisk. Cloud Studios will confirm availability directly.</p></div>
     {Object.keys(errors).length > 0 && <div ref={summaryRef} className="form-error-summary" role="alert" tabIndex="-1"><strong>Please check {Object.keys(errors).length} {Object.keys(errors).length === 1 ? "field" : "fields"}.</strong><ul>{Object.keys(errors).map((name) => <li key={name}><a href={`#${name}`}>{fieldLabels[name]}: {errors[name]}</a></li>)}</ul></div>}
+    {serverError && <div ref={summaryRef} className="form-error-summary" role="alert" tabIndex="-1"><strong>We couldn’t send the form.</strong><p>{serverError}</p></div>}
     <div className="field-row"><Field name="name" label="Name" required error={errors.name} autoComplete="name" /><Field name="phone" label="Phone" type="tel" error={errors.phone} autoComplete="tel" /></div>
     <Field name="email" label="Email" type="email" required error={errors.email} autoComplete="email" />
     {isTour ? <><Field name="preferred_datetime" label="Preferred date and time" type="datetime-local" required error={errors.preferred_datetime} /><label className="field" htmlFor="interest"><span>Service interest <b aria-hidden="true">*</b></span><select id="interest" name="interest" required aria-required="true" aria-invalid={Boolean(errors.interest)} aria-describedby={errors.interest ? "interest-error" : undefined} aria-errormessage={errors.interest ? "interest-error" : undefined} defaultValue={tourInterests.includes(requestedInterest) ? requestedInterest : ""}><option value="">Choose an option</option>{tourInterests.map((interest) => <option key={interest}>{interest}</option>)}</select>{errors.interest && <small id="interest-error">{errors.interest}</small>}</label><label className="field" htmlFor="message"><span>Team requirements</span><textarea id="message" name="message" rows="5" placeholder="Tell us your team size and needs" /></label></> : <><Field name="subject" label="Subject" required error={errors.subject} defaultValue={requestedInterest ? `${requestedInterest} enquiry` : ""} /><label className="field" htmlFor="message"><span>Message <b aria-hidden="true">*</b></span><textarea id="message" name="message" rows="6" required aria-required="true" aria-invalid={Boolean(errors.message)} aria-describedby={errors.message ? "message-error" : undefined} aria-errormessage={errors.message ? "message-error" : undefined} />{errors.message && <small id="message-error">{errors.message}</small>}</label></>}
-    <p className="demo-note">Demo only. Submitting this form will not transmit or store your information.</p>
-    <button className="primary-button submit-button" type="submit">{isTour ? "Request a tour" : "Send enquiry"}<ArrowRight /></button>
+    <p className="form-privacy-note">Your details are sent securely to Cloud Studios and handled under the <Link to="/privacy-policy">privacy policy</Link>.</p>
+    <button className="primary-button submit-button" type="submit" disabled={status === "submitting"}>{status === "submitting" ? "Sending…" : isTour ? "Request a tour" : "Send enquiry"}{status !== "submitting" && <ArrowRight />}</button>
   </form>;
 }
 
@@ -420,9 +455,9 @@ function FaqPage() {
 }
 
 const policies = {
-  privacy: { eyebrow: "Your information", title: "Privacy Policy", intro: "How Cloud Studios handles information submitted through enquiries, tour requests and website use.", updated: "1 September 2026", sections: [["Prototype forms", "Forms in this local prototype do not transmit or store information. Use the listed phone or email address to make a real enquiry."], ["Information collected", "On the live service, contact details, booking information and basic website analytics may be collected when you contact Cloud Studios, book a tour or use the website."], ["How information is used", "Information is used to respond to enquiries, arrange tours, provide requested services and improve the website experience."], ["Sharing", "Cloud Studios does not sell personal information. Information is shared only with service providers needed to operate the website or process enquiries, and only as required."], ["Privacy contact", `Questions about your information can be sent to ${contact.email}.`]] },
+  privacy: { eyebrow: "Your information", title: "Privacy Policy", intro: "How Cloud Studios handles information submitted through enquiries, tour requests and website use.", updated: "2 September 2026", sections: [["Website forms", "Contact and tour forms send the information you provide to Cloud Studios and keep a private submission record so the team can respond and administer your request."], ["Information collected", "Contact details, enquiry or booking information and basic website analytics may be collected when you contact Cloud Studios, book a tour or use the website."], ["How information is used", "Information is used to respond to enquiries, arrange tours, provide requested services and improve the website experience."], ["Sharing", "Cloud Studios does not sell personal information. Information is shared only with service providers needed to operate the website or process enquiries, and only as required."], ["Privacy contact", `Questions about your information can be sent to ${contact.email}.`]] },
   workplace: { eyebrow: "Working well together", title: "Workplace Policy", intro: "Professional standards and shared-space expectations for members, guests and visitors.", updated: "15 February 2026", sections: [["Professional conduct", "Treat others respectfully, maintain reasonable noise levels, and do not engage in harassment, discrimination, intimidation or abusive behaviour."], ["Private offices & access", "Use private offices for legitimate professional activity, keep access credentials secure and secure your office and belongings when leaving."], ["Shared spaces", "Leave communal areas clean, follow waste and recycling guidance, and return furniture and equipment to their original configuration."], ["Meeting rooms & guests", "Use booked facilities within the agreed time and remain responsible for your guests while they are on site."], ["Safety, security & privacy", "Do not share access devices or codes. Respect confidential work and do not record in shared spaces without clear permission."], ["Enforcement", "Cloud Studios may use warnings, suspend access or terminate an arrangement in accordance with the relevant agreement and applicable law."]] },
-  terms: { eyebrow: "Using this website", title: "Terms of Service", intro: "The basis on which Cloud Studios presents website information, enquiries and bookings.", updated: "1 September 2026", sections: [["Business identity", `Cloud Studios is the trading name of ${contact.company}.`], ["Website information", "Information is provided in good faith and may change without notice. Contact the team to confirm current pricing, availability and service details."], ["Bookings", "Meeting-room, tour and workspace bookings are subject to confirmation by Cloud Studios. Confirm the applicable booking terms directly before relying on a date or service."], ["Prototype enquiries", "Forms in this local prototype do not send information. Use the listed phone or email address for a real enquiry."], ["Acceptable use", "Do not misuse the website, attempt unauthorised access or interfere with its operation."], ["Third-party links", "External services such as Google Maps operate under their own terms and policies."], ["Contact", `Questions about these terms can be sent to ${contact.email}.`]] },
+  terms: { eyebrow: "Using this website", title: "Terms of Service", intro: "The basis on which Cloud Studios presents website information, enquiries and bookings.", updated: "2 September 2026", sections: [["Business identity", `Cloud Studios is the trading name of ${contact.company}.`], ["Website information", "Information is provided in good faith and may change without notice. Contact the team to confirm current pricing, availability and service details."], ["Bookings", "Meeting-room, tour and workspace bookings are subject to confirmation by Cloud Studios. Confirm the applicable booking terms directly before relying on a date or service."], ["Website enquiries", "Sending a form does not create a booking or service agreement. Cloud Studios will contact you directly to confirm availability and next steps."], ["Acceptable use", "Do not misuse the website, attempt unauthorised access or interfere with its operation."], ["Third-party links", "External services such as Google Maps operate under their own terms and policies."], ["Contact", `Questions about these terms can be sent to ${contact.email}.`]] },
 };
 
 function PolicyPage({ type }) {

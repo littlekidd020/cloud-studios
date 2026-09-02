@@ -232,8 +232,10 @@ em { position: relative; color: inherit; font-style: italic; font-weight: 400; }
 .form-error-summary { padding: 18px 20px; border-left: 3px solid #a3261d; background: #f5e7e2; }
 .form-error-summary:focus { outline: 2px solid var(--terracotta); outline-offset: 3px; }
 .form-error-summary strong { font-size: 13px; }
+.form-error-summary p { margin-top: 8px; font-size: 12px; line-height: 1.6; }
 .form-error-summary ul { display: grid; gap: 5px; margin: 10px 0 0; padding-left: 18px; font-size: 12px; line-height: 1.5; }
 .form-error-summary a { text-decoration: underline; text-underline-offset: 2px; }
+.honeypot { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .field { display: grid; gap: 10px; }
 .field > span { font-size: 10px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
@@ -244,8 +246,10 @@ em { position: relative; color: inherit; font-style: italic; font-weight: 400; }
 .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--terracotta); box-shadow: 0 1px var(--terracotta); }
 .field [aria-invalid="true"] { border-color: #ad271c; }
 .field small { color: #a3261d; font-size: 11px; }
-.demo-note { font-size: 11px; line-height: 1.6; color: #665f57; }
+.form-privacy-note { font-size: 11px; line-height: 1.6; color: #665f57; }
+.form-privacy-note a { text-decoration: underline; text-underline-offset: 2px; }
 .submit-button { justify-self: start; }
+.submit-button:disabled { cursor: wait; opacity: .72; transform: none; }
 .success-state { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; min-height: 560px; padding: clamp(35px, 6vw, 80px); border: 1px solid var(--line); background: var(--paper); }
 .success-state > span { width: 62px; height: 62px; display: grid; place-items: center; margin-bottom: 30px; border: 1px solid var(--gold); border-radius: 50%; color: var(--gold); }
 .success-state h2 { margin-top: 16px; font: 500 52px/1 var(--serif); }

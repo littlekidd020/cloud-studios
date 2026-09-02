@@ -22,6 +22,8 @@ Keep the desktop hero collage level and orderly, using the responsive compositio
 
 Keep proof-row icon circles visibly inset from every outer edge and column divider at desktop, tablet and phone widths.
 
+Production enquiry and tour forms must retain the legacy admin and customer emails, tour calendar attachment, honeypot validation, and durable submission log. Keep mail credentials outside Git and store form records outside `public_html` so automated deployments cannot expose or erase them.
+
 Keep the global header fixed to the viewport: it stays visible at the top, hides during deliberate downward scrolling, and returns promptly when the user scrolls upward. Keep it visible whenever the navigation menu or keyboard focus is active.
 
 Render the full-screen navigation as a document-level viewport overlay, independent of the transformed sticky header, so page sections never bleed through or become part of the menu scroll on any breakpoint.

@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { availabilityChecked, classifyIntent, contact, pageMeta, pricing, routes, servicePages, validateForm } from "../src/site.js";
 
 test("route manifest and shared business facts stay complete", () => {
@@ -32,7 +33,7 @@ test("service pages use intent-specific actions and decision facts", () => {
   assert.ok(Object.values(servicePages).every(({ facts, faqs }) => facts.length >= 4 && faqs.length >= 3));
 });
 
-test("demo form validation checks required fields and email", () => {
+test("form validation checks required fields and email", () => {
   assert.deepEqual(validateForm({}, ["name", "email"]), {
     name: "This field is required.", email: "This field is required.",
   });
@@ -40,10 +41,27 @@ test("demo form validation checks required fields and email", () => {
   assert.deepEqual(validateForm({ name: "Kexin", email: "hello@example.com" }, ["name", "email"]), {});
 });
 
-test("intent instrumentation classifies conversion links without transmitting data", () => {
+test("intent instrumentation classifies conversion links", () => {
   assert.equal(classifyIntent("tel:+6492188670"), "phone_click");
   assert.equal(classifyIntent("mailto:admin@cloudstudios.co.nz"), "email_click");
   assert.equal(classifyIntent(contact.maps), "map_click");
   assert.equal(classifyIntent("/book-a-tour", "tour_cta"), "tour_cta");
   assert.equal(classifyIntent("/faq"), "");
+});
+
+test("production form handlers retain the legacy delivery and storage contract", () => {
+  const common = readFileSync(new URL("../public/includes/form-common.php", import.meta.url), "utf8");
+  const enquiry = readFileSync(new URL("../public/send-enquiry.php", import.meta.url), "utf8");
+  const tour = readFileSync(new URL("../public/send-tour.php", import.meta.url), "utf8");
+
+  assert.match(common, /private\/cloud-studios-forms/);
+  assert.match(common, /CS_SMTP_PASSWORD/);
+  assert.doesNotMatch(common, /'smtp_password'\s*=>\s*'[^']+'/);
+  assert.match(enquiry, /cs_log_submission\('enquiry'/);
+  assert.match(enquiry, /enquiry-admin/);
+  assert.match(enquiry, /enquiry-customer/);
+  assert.match(tour, /cs_log_submission\('tour'/);
+  assert.match(tour, /Content-Type: text\/calendar/);
+  assert.match(tour, /tour-admin/);
+  assert.match(tour, /tour-customer/);
 });
