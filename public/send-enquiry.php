@@ -32,6 +32,17 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
 $requestId = cs_request_id();
 $config = cs_form_config();
+$logged = cs_log_submission('enquiry', $requestId, array(
+  'name' => $name,
+  'email' => $email,
+  'phone' => $phone,
+  'subject' => $subject,
+  'message' => $message,
+));
+if (!$logged) {
+  cs_fail(503, 'We could not safely record your enquiry right now. Please call 09 218 8670 or email admin@cloudstudios.co.nz.', $isAjax);
+}
+
 $plainHeaders = "Reply-To: {$email}\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit";
 $adminBody =
   "New enquiry received:\n\n" .
@@ -58,19 +69,10 @@ $customerBody =
   "Kind regards,\nCloud Studios\nLevel 2, 109 Great South Road\nEpsom, Auckland 1051, New Zealand\ncloudstudios.co.nz\n\n" .
   "Your enquiry details:\nSubject: {$subject}\nPhone: " . ($phone !== '' ? $phone : '-') . "\nMessage:\n{$message}\n";
 $customerHeaders = "Reply-To: admin@cloudstudios.co.nz\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit";
-$customerMailOk = cs_send_message('enquiry-customer', $requestId, $email, 'Your Cloud Studios Enquiry', $customerBody, $customerHeaders);
-
-$logged = cs_log_submission('enquiry', $requestId, array(
-  'name' => $name,
-  'email' => $email,
-  'phone' => $phone,
-  'subject' => $subject,
-  'message' => $message,
-), $adminMailOk, $customerMailOk);
+cs_send_message('enquiry-customer', $requestId, $email, 'Your Cloud Studios Enquiry', $customerBody, $customerHeaders);
 
 if (!$adminMailOk) {
-  $suffix = $logged ? ' Your details were safely recorded, but please also call us.' : '';
-  cs_fail(503, 'We could not email your enquiry right now.' . $suffix . ' Please call 09 218 8670 or email admin@cloudstudios.co.nz.', $isAjax);
+  cs_fail(503, 'Your details were safely recorded, but we could not email your enquiry right now. Please call 09 218 8670 or email admin@cloudstudios.co.nz.', $isAjax);
 }
 
 if ($isAjax) cs_json_response(200, array('ok' => true, 'request_id' => $requestId));

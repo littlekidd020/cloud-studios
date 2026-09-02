@@ -42,6 +42,18 @@ $dateTimeUtcStart = $dateTimeNz->setTimezone(new DateTimeZone('UTC'));
 $dateTimeUtcEnd = $dateTimeUtcStart->modify('+45 minutes');
 $requestId = cs_request_id();
 $config = cs_form_config();
+$logged = cs_log_submission('tour', $requestId, array(
+  'name' => $name,
+  'email' => $email,
+  'phone' => $phone,
+  'preferred_datetime' => $preferredDatetime,
+  'preferred_datetime_pretty' => $preferredPretty,
+  'interest' => $interest,
+  'message' => $message,
+));
+if (!$logged) {
+  cs_fail(503, 'We could not safely record your tour request right now. Please call 09 218 8670 or email admin@cloudstudios.co.nz.', $isAjax);
+}
 
 $adminBody =
   "New tour request received:\n\n" .
@@ -88,21 +100,10 @@ $customerBody .= "--{$boundary}\r\n";
 $customerBody .= "Content-Type: text/calendar; method=REQUEST; charset=UTF-8; name=\"Cloud-Studios-Tour.ics\"\r\n";
 $customerBody .= "Content-Disposition: attachment; filename=\"Cloud-Studios-Tour.ics\"\r\nContent-Transfer-Encoding: base64\r\n\r\n";
 $customerBody .= chunk_split(base64_encode($calendar)) . "\r\n--{$boundary}--\r\n";
-$customerMailOk = cs_send_message('tour-customer', $requestId, $email, 'Your Cloud Studios Tour Request', $customerBody, $customerHeaders);
-
-$logged = cs_log_submission('tour', $requestId, array(
-  'name' => $name,
-  'email' => $email,
-  'phone' => $phone,
-  'preferred_datetime' => $preferredDatetime,
-  'preferred_datetime_pretty' => $preferredPretty,
-  'interest' => $interest,
-  'message' => $message,
-), $adminMailOk, $customerMailOk);
+cs_send_message('tour-customer', $requestId, $email, 'Your Cloud Studios Tour Request', $customerBody, $customerHeaders);
 
 if (!$adminMailOk) {
-  $suffix = $logged ? ' Your details were safely recorded, but please also call us.' : '';
-  cs_fail(503, 'We could not email your tour request right now.' . $suffix . ' Please call 09 218 8670 or email admin@cloudstudios.co.nz.', $isAjax);
+  cs_fail(503, 'Your details were safely recorded, but we could not email your tour request right now. Please call 09 218 8670 or email admin@cloudstudios.co.nz.', $isAjax);
 }
 
 if ($isAjax) cs_json_response(200, array('ok' => true, 'request_id' => $requestId));

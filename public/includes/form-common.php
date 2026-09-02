@@ -86,14 +86,12 @@ function cs_client_fingerprint(): string {
   return substr(hash('sha256', date('Y-m') . '|' . $ip), 0, 16);
 }
 
-function cs_log_submission(string $type, string $requestId, array $payload, bool $adminMailOk, bool $customerMailOk): bool {
+function cs_log_submission(string $type, string $requestId, array $payload): bool {
   return cs_write_jsonl('form-submissions-' . date('Y-m') . '.jsonl', array(
     'timestamp' => date('c'),
     'type' => $type,
     'request_id' => $requestId,
     'client' => cs_client_fingerprint(),
-    'admin_mail_ok' => $adminMailOk,
-    'customer_mail_ok' => $customerMailOk,
     'payload' => $payload,
   ));
 }
