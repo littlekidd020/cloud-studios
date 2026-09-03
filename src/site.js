@@ -19,6 +19,7 @@ export const assets = {
   desksWide: "/assets/cloud-studios/desks-wide-v4.webp",
   desksTwo: "/assets/cloud-studios/desks-d2-v4.webp",
   meeting: "/assets/cloud-studios/meeting-hero-v2.webp",
+  meetingM1: "/assets/cloud-studios/meeting-m1.webp",
   meetingTwo: "/assets/cloud-studios/meeting-2-v2.webp",
   meetingFour: "/assets/cloud-studios/meeting-4-v2.webp",
   virtual: "/assets/cloud-studios/virtual-hero-v2.webp",
@@ -153,10 +154,11 @@ export const servicePages = {
   },
   meeting: {
     title: "Meeting & Training Room Hire",
+    image: assets.meetingM1,
     intro: "A flexible room for workshops, presentations and client conversations, close to Newmarket in Epsom.",
     kicker: "$60 / hour (+GST) · clear confirmation",
     action: { label: "Check availability", to: "/contact?interest=Meeting%20Rooms#enquiry" },
-    gallery: [assets.meetingTwo, assets.meetingFour, assets.meeting],
+    gallery: [assets.meetingM1, assets.meetingFour, assets.meetingM1],
     facts: [
       ["Capacity", "12 boardroom-style or 20+ in presentation format"],
       ["AV included", "65-inch interactive display, HDMI and fast internet"],

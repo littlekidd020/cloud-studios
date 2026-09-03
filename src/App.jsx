@@ -297,11 +297,11 @@ function ServicePage({ service, kind }) {
   const page = servicePages[kind];
 
   return <>
-    <PageHero eyebrow={service.eyebrow} title={page.title} intro={page.intro} image={service.image} alt={service.imageAlt} kicker={page.kicker} action={page.action} />
+    <PageHero eyebrow={service.eyebrow} title={page.title} intro={page.intro} image={page.image ?? service.image} alt={service.imageAlt} kicker={page.kicker} action={page.action} />
     <ServiceFacts items={page.facts} />
     <section className="editorial-section split-section" data-reveal><div><p className="eyebrow">Made for clear work</p><h2>{kind === "meeting" ? "Everything ready, when you are." : "A considered place to settle in."}</h2></div><div><p>{service.summary}</p><ul className="tick-list">{service.features.map((item) => <li key={item}><Check />{item}</li>)}</ul></div></section>
     <PricingSection kind={kind} />
-    <section className="gallery-strip section-shell">{page.gallery.map((image, index) => <figure key={image} data-reveal><img src={image} alt={`${service.title} at Cloud Studios ${index + 1}`} loading="lazy" decoding="async" /></figure>)}</section>
+    <section className="gallery-strip section-shell">{page.gallery.map((image, index) => <figure key={`${image}-${index}`} data-reveal><img src={image} alt={`${service.title} at Cloud Studios ${index + 1}`} loading="lazy" decoding="async" /></figure>)}</section>
     <ContextFaqs title={`${service.title} questions`} items={page.faqs} />
     <TourBand />
   </>;

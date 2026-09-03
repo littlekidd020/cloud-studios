@@ -18,6 +18,8 @@ Keep generated photography grounded in the genuine source's ordinary material va
 
 Compose service photography for its actual rendered slot: use landscape-friendly gallery ratios, an establishing-detail-establishing sequence and explicit focal crops instead of forcing every source into tall generic frames.
 
+On the meeting-rooms page, use the user's M1 photo (meeting-m1.webp) for the hero and the first and third gallery images on desktop and mobile. Preserve the middle gallery image and all existing image-frame dimensions, aspect ratios and crops.
+
 Keep the desktop hero collage level and orderly, using the responsive composition's proportions: a right-shifted wide top frame, a left inset middle frame, and a right-shifted wide lower frame with narrow cream separation. Avoid oversized ribbons, deep organic cuts and competing curves across photographs.
 
 Keep proof-row icon circles visibly inset from every outer edge and column divider at desktop, tablet and phone widths.
