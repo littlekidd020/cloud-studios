@@ -26,6 +26,8 @@ Production enquiry and tour forms must retain the legacy admin and customer emai
 
 Keep the global header fixed to the viewport: it stays visible at the top, hides during deliberate downward scrolling, and returns promptly when the user scrolls upward. Keep it visible whenever the navigation menu or keyboard focus is active.
 
+Keep the upper-left logo large and center its visible symbol and wordmark together inside the black badge on desktop and mobile. Account for the source image's transparent margins when sizing and aligning it.
+
 Render the full-screen navigation as a document-level viewport overlay, independent of the transformed sticky header, so page sections never bleed through or become part of the menu scroll on any breakpoint.
 
 On phone widths, keep the verified Cloud Studios phone number in an edge-to-edge call bar fixed to the bottom of the viewport. Match the primary terracotta CTA palette, reserve footer space for it and suppress the bar while the full-screen navigation menu is open.
