@@ -26,7 +26,7 @@ Production enquiry and tour forms must retain the legacy admin and customer emai
 
 Keep the global header fixed to the viewport: it stays visible at the top, hides during deliberate downward scrolling, and returns promptly when the user scrolls upward. Keep it visible whenever the navigation menu or keyboard focus is active.
 
-Keep the upper-left logo large inside the black badge on desktop and mobile. Preserve the wordmark's centered position, size and appearance; shift only the gold symbol 15 CSS pixels to the right of its original position at every breakpoint. Account for the source image's transparent margins and keep the symbol and wordmark independently positioned.
+Keep the upper-left logo large inside the black badge on desktop and mobile. Preserve the wordmark's centered position, size and appearance; shift only the gold symbol 5 CSS pixels to the right of its original position at every breakpoint. Account for the source image's transparent margins and keep the symbol and wordmark independently positioned.
 
 Display the location coordinates from the shared contact latitude and longitude for Level 2, 109 Great South Road, Epsom: 36.8844° S, 174.7862° E. Preserve the vertical desktop rail and show the same coordinates in a compact horizontal line on tablet and phone widths.
 
