@@ -241,7 +241,10 @@ function Header({ menuOpen, setMenuOpen }) {
 
   return <>
     <header className={headerClasses} onFocusCapture={header.show}>
-      <Link className="brand" to="/" aria-label="Cloud Studios home" tabIndex={menuOpen ? -1 : undefined}><img src={assets.logo} alt="Cloud Studios" decoding="async" /></Link>
+      <Link className="brand" to="/" aria-label="Cloud Studios home" tabIndex={menuOpen ? -1 : undefined}>
+        <img className="brand-wordmark" src={assets.logo} alt="Cloud Studios" decoding="async" />
+        <img className="brand-symbol" src={assets.logo} alt="" aria-hidden="true" decoding="async" />
+      </Link>
       <nav className="desktop-nav" aria-label="Primary navigation">
         <div className="nav-dropdown">
           <NavLink to="/office-suites">Offices & desks <CaretDown size={13} weight="bold" /></NavLink>
@@ -261,7 +264,7 @@ function Header({ menuOpen, setMenuOpen }) {
 function Home() {
   return <>
     <section className="home-hero">
-      <aside className="epsom-marker" aria-hidden="true"><span>Epsom · Near Newmarket</span><i>36.8765° S, 174.7748° E</i></aside>
+      <aside className="epsom-marker" aria-hidden="true"><span>Epsom · Near Newmarket</span><i>{Math.abs(contact.latitude).toFixed(4)}° S, {contact.longitude.toFixed(4)}° E</i></aside>
       <div className="hero-copy">
         <p className="eyebrow">Premium serviced offices & dedicated desks</p>
         <h1 tabIndex="-1">Space to focus.<br />Room to <em>grow.</em></h1>

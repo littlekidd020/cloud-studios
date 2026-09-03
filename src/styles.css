@@ -50,6 +50,9 @@ em { position: relative; color: inherit; font-style: italic; font-weight: 400; }
 .brand { position: relative; z-index: 60; align-self: start; width: 134px; height: 118px; overflow: hidden; background: var(--ink); border-radius: 0 0 66px 66px; }
 /* Compensate for the asset's transparent margins and slightly off-center artwork. */
 .brand img { position: absolute; top: 50%; left: 50%; width: 108%; height: auto; max-width: none; max-height: none; transform: translate(-51.5%, -50%); }
+/* Split in the transparent gap so only the gold symbol moves, in CSS pixels. */
+.brand .brand-wordmark { clip-path: inset(62.5% 0 0); }
+.brand .brand-symbol { clip-path: inset(0 0 37.5%); transform: translate(calc(-51.5% + 30px), -50%); }
 .desktop-nav { display: flex; align-items: center; justify-content: center; gap: clamp(20px, 3.2vw, 48px); }
 .desktop-nav > a, .nav-dropdown > a { display: flex; align-items: center; gap: 4px; padding: 18px 0; font-size: 10px; line-height: 1; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; white-space: nowrap; }
 .desktop-nav a { position: relative; }
@@ -318,7 +321,9 @@ em { position: relative; color: inherit; font-style: italic; font-weight: 400; }
   .mobile-menu { z-index: -1; }
   .mobile-menu.is-open { z-index: 40; }
   .home-hero { min-height: auto; display: block; padding: 148px 24px 70px; }
-  .epsom-marker { display: none; }
+  .epsom-marker { display: block; margin-bottom: 18px; border: 0; writing-mode: horizontal-tb; transform: none; }
+  .epsom-marker::before, .epsom-marker::after, .epsom-marker span { display: none; }
+  .epsom-marker i { position: static; display: block; font-size: 8px; line-height: 1.5; letter-spacing: .16em; }
   .hero-copy { padding: 0; }
   .hero-copy h1 { font-size: clamp(54px, 13vw, 82px); }
   .hero-intro { max-width: 620px; }
