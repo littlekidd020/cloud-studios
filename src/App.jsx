@@ -242,8 +242,7 @@ function Header({ menuOpen, setMenuOpen }) {
   return <>
     <header className={headerClasses} onFocusCapture={header.show}>
       <Link className="brand" to="/" aria-label="Cloud Studios home" tabIndex={menuOpen ? -1 : undefined}>
-        <img className="brand-wordmark" src={assets.logo} alt="Cloud Studios" decoding="async" />
-        <img className="brand-symbol" src={assets.logo} alt="" aria-hidden="true" decoding="async" />
+        <img src={assets.logo} alt="Cloud Studios" decoding="async" />
       </Link>
       <nav className="desktop-nav" aria-label="Primary navigation">
         <div className="nav-dropdown">
