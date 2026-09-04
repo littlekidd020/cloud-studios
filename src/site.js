@@ -3,7 +3,7 @@ export const contact = {
   phoneHref: "tel:+6492188670",
   email: "admin@cloudstudios.co.nz",
   address: "Level 2, 109 Great South Road, Epsom, Auckland 1051, New Zealand",
-  company: "Lunar Palace Limited",
+  brand: "Cloud Studios",
   latitude: -36.8844193,
   longitude: 174.7862103,
   maps: "https://www.google.com/maps/place/Cloud+Studios+%E9%9B%B2%E9%96%93/@-36.8844193,174.7862103,17z/data=!3m1!4b1!4m6!3m5!1s0x6d0d491643dcece7:0xc6d9e22b8971e183!8m2!3d-36.8844193!4d174.7862103!16s%2Fg%2F11yvkvfdnp?entry=ttu&g_ep=EgoyMDI2MDEyMS4wIKXMDSoASAFQAw%3D%3D",

@@ -13,7 +13,7 @@ test("route manifest and shared business facts stay complete", () => {
   assert.equal(contact.email, "admin@cloudstudios.co.nz");
   assert.equal(contact.phoneHref, "tel:+6492188670");
   assert.match(contact.address, /109 Great South Road/);
-  assert.equal(contact.company, "Lunar Palace Limited");
+  assert.equal(contact.brand, "Cloud Studios");
   assert.equal(Object.keys(pageMeta).length, routes.length);
   assert.ok(routes.every(([path]) => pageMeta[path]?.title && pageMeta[path]?.description));
 });

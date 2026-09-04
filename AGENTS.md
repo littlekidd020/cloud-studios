@@ -40,4 +40,6 @@ On phone widths, keep the verified Cloud Studios phone number in an edge-to-edge
 
 Keep the cream editorial system intact during product audits. Put service-specific actions, verified prices, capacities, inclusions and availability ahead of generic promotional copy, and never invent business hours, response times, policies or social proof to fill a content gap.
 
+Present the business publicly as Cloud Studios only. Do not append or describe a parent company, legal entity, trading-name owner or company-name suffix anywhere on the website.
+
 Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts/prepare-sites-build.mjs`, and `tests/sites-worker.test.mjs` intact so the same local prototype can be handed to Sites. Before a Sites handoff, run `npm run build` and `npm run test:sites`; the build must leave `dist/client/index.html`, `dist/server/index.js`, and `dist/.openai/hosting.json`.
