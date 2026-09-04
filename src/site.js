@@ -23,7 +23,7 @@ export const assets = {
   meetingTwo: "/assets/cloud-studios/meeting-2-v2.webp",
   meetingFour: "/assets/cloud-studios/meeting-4-v2.webp",
   virtual: "/assets/cloud-studios/virtual-hero-v2.webp",
-  experiences: "/assets/cloud-studios/experiences-hero-v3.webp",
+  experiences: "/assets/cloud-studios/experiences-hero-v4.webp",
   community: "/assets/cloud-studios/community-hero-v3.webp",
   building: "/assets/cloud-studios/building-v4.webp",
   mosaicOffice: "/assets/cloud-studios/mosaic-office-v2.webp",
