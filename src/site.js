@@ -9,6 +9,8 @@ export const contact = {
   maps: "https://www.google.com/maps/place/Cloud+Studios+%E9%9B%B2%E9%96%93/@-36.8844193,174.7862103,17z/data=!3m1!4b1!4m6!3m5!1s0x6d0d491643dcece7:0xc6d9e22b8971e183!8m2!3d-36.8844193!4d174.7862103!16s%2Fg%2F11yvkvfdnp?entry=ttu&g_ep=EgoyMDI2MDEyMS4wIKXMDSoASAFQAw%3D%3D",
 };
 
+export const siteUrl = "https://cloudstudios.co.nz";
+
 export const assets = {
   logo: "/assets/cloud-studios/logo.webp",
   office: "/assets/cloud-studios/office-o3-v4.webp",
@@ -203,7 +205,7 @@ export const faqs = [
 ];
 
 export const pageMeta = {
-  "/": { title: "Serviced Offices & Coworking Epsom | Cloud Studios", description: "Premium serviced offices, dedicated desks, meeting rooms and virtual office services at 109 Great South Road, Epsom, Auckland." },
+  "/": { title: "Cloud Studios | Serviced Offices & Coworking Epsom", description: "Premium serviced offices, dedicated desks, meeting rooms and virtual office services at 109 Great South Road, Epsom, Auckland." },
   "/office-suites": { title: "Private Office Suites Epsom | Cloud Studios", description: "Furnished, lockable serviced offices for small teams in Epsom, with flexible terms, included utilities and on-site parking." },
   "/dedicated-desks": { title: "Dedicated Desks Epsom Auckland | Cloud Studios", description: "Part-time and full-time reserved desks in a quiet professional workspace near Newmarket, from $300 + GST per month." },
   "/meeting-rooms": { title: "Meeting & Training Room Hire Epsom | Cloud Studios", description: "Hire a meeting and training room near Newmarket for up to 12 boardroom-style or 20+ presentation-style, from $60 + GST per hour." },
@@ -217,6 +219,65 @@ export const pageMeta = {
   "/workplace-policy": { title: "Workplace Policy | Cloud Studios", description: "Professional conduct, access, shared-space, guest, safety and privacy expectations at Cloud Studios." },
   "/terms-of-service": { title: "Terms of Service | Cloud Studios", description: "Terms governing use of the Cloud Studios website, enquiries and confirmed bookings." },
 };
+
+export function structuredDataForPath(path) {
+  const businessId = `${siteUrl}/#business`;
+  const graph = [];
+
+  if (path === "/") {
+    graph.push({
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+      url: `${siteUrl}/`,
+      name: contact.brand,
+      publisher: { "@id": businessId },
+    });
+  }
+
+  graph.push({
+    "@type": "LocalBusiness",
+    "@id": businessId,
+    name: contact.brand,
+    url: `${siteUrl}/`,
+    logo: `${siteUrl}${assets.logo}`,
+    telephone: "+6492188670",
+    email: contact.email,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Level 2, 109 Great South Road",
+      addressLocality: "Epsom",
+      addressRegion: "Auckland",
+      postalCode: "1051",
+      addressCountry: "NZ",
+    },
+    geo: { "@type": "GeoCoordinates", latitude: contact.latitude, longitude: contact.longitude },
+    areaServed: "Auckland",
+  });
+
+  const service = services.find((item) => item.path === path);
+  if (service) {
+    graph.push({
+      "@type": "Service",
+      name: service.title,
+      description: service.summary,
+      areaServed: "Auckland",
+      provider: { "@id": businessId },
+    });
+  }
+
+  if (path === "/faq") {
+    graph.push({
+      "@type": "FAQPage",
+      mainEntity: faqs.map(([question, answer]) => ({
+        "@type": "Question",
+        name: question,
+        acceptedAnswer: { "@type": "Answer", text: answer },
+      })),
+    });
+  }
+
+  return { "@context": "https://schema.org", "@graph": graph };
+}
 
 export function validateForm(values, required) {
   const errors = Object.fromEntries(required.filter((name) => !String(values[name] || "").trim()).map((name) => [name, "This field is required."]));

@@ -42,4 +42,6 @@ Keep the cream editorial system intact during product audits. Put service-specif
 
 Present the business publicly as Cloud Studios only. Do not append or describe a parent company, legal entity, trading-name owner or company-name suffix anywhere on the website.
 
+Keep the organic-search site name signals consistent as Cloud Studios: the home-page `WebSite` structured data, `og:site_name`, application name, title and visible branding must all use that exact name. Do not use the bare domain as the preferred site name.
+
 Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts/prepare-sites-build.mjs`, and `tests/sites-worker.test.mjs` intact so the same local prototype can be handed to Sites. Before a Sites handoff, run `npm run build` and `npm run test:sites`; the build must leave `dist/client/index.html`, `dist/server/index.js`, and `dist/.openai/hosting.json`.

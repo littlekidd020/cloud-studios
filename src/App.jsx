@@ -6,7 +6,7 @@ import {
   ClockCounterClockwise, CurrencyDollar, EnvelopeSimple, List, MapPin, Phone, X,
 } from "@phosphor-icons/react";
 import { HeroScene } from "./HeroScene.jsx";
-import { assets, availabilityChecked, classifyIntent, contact, faqs, pageMeta, pricing, routes, servicePages, services, validateForm } from "./site.js";
+import { assets, availabilityChecked, classifyIntent, contact, pageMeta, pricing, routes, servicePages, services, siteUrl, structuredDataForPath, validateForm } from "./site.js";
 
 const primaryNav = [
   ["/meeting-rooms", "Meeting rooms"], ["/virtual-office-auckland", "Virtual office"],
@@ -105,28 +105,22 @@ function Meta({ path }) {
     const meta = pageMeta[path] || { title: "Cloud Studios Epsom", description: "Premium flexible workspace in Epsom, Auckland." };
     document.title = meta.title;
     setMeta("name", "description", meta.description);
+    setMeta("name", "application-name", contact.brand);
+    setMeta("property", "og:site_name", contact.brand);
     setMeta("property", "og:title", meta.title);
     setMeta("property", "og:description", meta.description);
     setMeta("property", "og:type", "website");
-    setMeta("property", "og:url", `https://cloudstudios.co.nz${path}`);
+    setMeta("property", "og:url", `${siteUrl}${path}`);
     setMeta("name", "twitter:card", "summary_large_image");
+    setMeta("name", "twitter:title", meta.title);
+    setMeta("name", "twitter:description", meta.description);
     const canonical = document.querySelector('link[rel="canonical"]') || document.head.appendChild(document.createElement("link"));
     canonical.setAttribute("rel", "canonical");
-    canonical.setAttribute("href", `https://cloudstudios.co.nz${path}`);
+    canonical.setAttribute("href", `${siteUrl}${path}`);
     const script = document.querySelector("#local-business-data") || document.head.appendChild(document.createElement("script"));
     script.id = "local-business-data";
     script.type = "application/ld+json";
-    const graph = [{
-      "@type": "LocalBusiness", name: "Cloud Studios",
-      url: "https://cloudstudios.co.nz/", telephone: "+6492188670", email: contact.email,
-      address: { "@type": "PostalAddress", streetAddress: "Level 2, 109 Great South Road", addressLocality: "Epsom", addressRegion: "Auckland", postalCode: "1051", addressCountry: "NZ" },
-      geo: { "@type": "GeoCoordinates", latitude: contact.latitude, longitude: contact.longitude },
-      areaServed: "Auckland",
-    }];
-    const service = services.find((item) => item.path === path);
-    if (service) graph.push({ "@type": "Service", name: service.title, description: service.summary, areaServed: "Auckland", provider: { "@type": "LocalBusiness", name: "Cloud Studios" } });
-    if (path === "/faq") graph.push({ "@type": "FAQPage", mainEntity: faqs.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) });
-    script.textContent = JSON.stringify({ "@context": "https://schema.org", "@graph": graph });
+    script.textContent = JSON.stringify(structuredDataForPath(path));
   }, [path]);
   return null;
 }

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { availabilityChecked, classifyIntent, contact, pageMeta, pricing, routes, servicePages, validateForm } from "../src/site.js";
+import { availabilityChecked, classifyIntent, contact, pageMeta, pricing, routes, servicePages, siteUrl, structuredDataForPath, validateForm } from "../src/site.js";
 
 test("route manifest and shared business facts stay complete", () => {
   assert.equal(routes.length, 13);
@@ -14,8 +14,18 @@ test("route manifest and shared business facts stay complete", () => {
   assert.equal(contact.phoneHref, "tel:+6492188670");
   assert.match(contact.address, /109 Great South Road/);
   assert.equal(contact.brand, "Cloud Studios");
+  assert.equal(siteUrl, "https://cloudstudios.co.nz");
   assert.equal(Object.keys(pageMeta).length, routes.length);
   assert.ok(routes.every(([path]) => pageMeta[path]?.title && pageMeta[path]?.description));
+});
+
+test("homepage exposes one preferred Google site name", () => {
+  const homeGraph = structuredDataForPath("/")["@graph"];
+  const website = homeGraph.filter((item) => item["@type"] === "WebSite");
+  assert.equal(website.length, 1);
+  assert.equal(website[0].name, "Cloud Studios");
+  assert.equal(website[0].url, "https://cloudstudios.co.nz/");
+  assert.equal(structuredDataForPath("/meeting-rooms")["@graph"].some((item) => item["@type"] === "WebSite"), false);
 });
 
 test("published pricing is present", () => {
