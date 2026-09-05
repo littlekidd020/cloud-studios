@@ -2,7 +2,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { contact, pageMeta, routes, siteUrl, structuredDataForPath } from "../src/site.js";
+import { contact, imagePreloadsForPath, pageMeta, routes, siteUrl, structuredDataForPath } from "../src/site.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const client = path.join(root, "dist", "client");
@@ -27,7 +27,8 @@ function renderRoute(pathname) {
   let html = source
     .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(meta.title)}</title>`)
     .replace(/<link rel="canonical" href="[^"]*"\s*\/>/, `<link rel="canonical" href="${canonical}" />`)
-    .replace(/<script id="local-business-data" type="application\/ld\+json">[\s\S]*?<\/script>/, `<script id="local-business-data" type="application/ld+json">${JSON.stringify(structuredDataForPath(pathname))}</script>`);
+    .replace(/<script id="local-business-data" type="application\/ld\+json">[\s\S]*?<\/script>/, `<script id="local-business-data" type="application/ld+json">${JSON.stringify(structuredDataForPath(pathname))}</script>`)
+    .replace(/<!-- route-image-preloads -->[\s\S]*?<!-- \/route-image-preloads -->/, `<!-- route-image-preloads -->\n${imagePreloadsForPath(pathname).map((source) => `    <link rel="preload" as="image" href="${escapeHtml(source)}" fetchpriority="high" data-route-image />`).join("\n")}\n    <!-- /route-image-preloads -->`);
 
   html = replaceMeta(html, "name", "description", meta.description);
   html = replaceMeta(html, "name", "application-name", contact.brand);

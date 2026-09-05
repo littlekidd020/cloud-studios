@@ -70,6 +70,7 @@ export function HeroScene() {
       scene.add(group);
 
       const loader = new THREE.TextureLoader();
+      let loadedTextures = 0;
       const borderMaterial = new THREE.MeshBasicMaterial({ color: 0xf4f0e8, toneMapped: false, depthTest: false, depthWrite: false });
       const frames = [
         { x: 1.04, y: 2.52, z: 0, order: 1, w: 7.04, h: 2.96, r: 0.16, bl: 1.08, focusX: 0.5, focusY: 0.48, url: textures[0] },
@@ -77,7 +78,14 @@ export function HeroScene() {
         { x: -1.76, y: 0.32, z: 0.12, order: 3, w: 3.68, h: 1.76, r: 0.3, focusX: 0.52, focusY: 0.5, url: textures[1] },
       ];
       for (const frame of frames) {
-        const texture = loader.load(frame.url, (loadedTexture) => coverTexture(loadedTexture, frame.w / frame.h, frame.focusX, frame.focusY));
+        const texture = loader.load(frame.url, (loadedTexture) => {
+          coverTexture(loadedTexture, frame.w / frame.h, frame.focusX, frame.focusY);
+          loadedTextures += 1;
+          if (loadedTextures === frames.length && !disposed) {
+            render();
+            setFallback(false);
+          }
+        });
         texture.colorSpace = THREE.SRGBColorSpace;
         texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
         texture.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 8);
@@ -98,7 +106,6 @@ export function HeroScene() {
       observer.observe(element);
       window.addEventListener("resize", resize);
       element.addEventListener("pointermove", move);
-      setFallback(false);
       render();
     });
 
@@ -126,9 +133,9 @@ export function HeroScene() {
 
 function StaticCollage() {
   return <div className="static-collage">
-    <img src={textures[0]} alt="" />
-    <img src={textures[1]} alt="" />
-    <img src={textures[2]} alt="" />
+    <img src={textures[0]} alt="" loading="eager" decoding="async" fetchPriority="high" />
+    <img src={textures[1]} alt="" loading="eager" decoding="async" fetchPriority="high" />
+    <img src={textures[2]} alt="" loading="eager" decoding="async" fetchPriority="high" />
   </div>;
 }
 

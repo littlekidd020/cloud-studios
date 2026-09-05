@@ -6,12 +6,24 @@ import {
   ClockCounterClockwise, CurrencyDollar, EnvelopeSimple, List, MapPin, Phone, X,
 } from "@phosphor-icons/react";
 import { HeroScene } from "./HeroScene.jsx";
-import { assets, availabilityChecked, classifyIntent, contact, pageMeta, pricing, routes, servicePages, services, siteUrl, structuredDataForPath, validateForm } from "./site.js";
+import { allImageSources, assets, availabilityChecked, classifyIntent, contact, imagePreloadsForPath, pageMeta, pricing, routes, servicePages, services, siteUrl, structuredDataForPath, validateForm } from "./site.js";
 
 const primaryNav = [
   ["/meeting-rooms", "Meeting rooms"], ["/virtual-office-auckland", "Virtual office"],
   ["/experiences", "Experiences"], ["/#location", "Location"], ["/community", "Community"], ["/contact", "Contact"],
 ];
+
+const warmedImages = new Map();
+
+function warmImageCache(sources) {
+  for (const source of sources) {
+    if (warmedImages.has(source)) continue;
+    const image = new Image();
+    image.decoding = "async";
+    image.src = source;
+    warmedImages.set(source, image);
+  }
+}
 
 export function App() {
   return <BrowserRouter><Site /></BrowserRouter>;
@@ -33,6 +45,10 @@ function Site() {
       else window.scrollTo(0, 0);
     });
   }, [location.pathname, location.hash]);
+
+  useEffect(() => {
+    warmImageCache(allImageSources);
+  }, []);
 
   useEffect(() => {
     function trackLink(event) {
@@ -114,6 +130,16 @@ function Meta({ path }) {
     setMeta("name", "twitter:card", "summary_large_image");
     setMeta("name", "twitter:title", meta.title);
     setMeta("name", "twitter:description", meta.description);
+    document.querySelectorAll('link[data-route-image]').forEach((node) => node.remove());
+    imagePreloadsForPath(path).forEach((source) => {
+      const preload = document.createElement("link");
+      preload.rel = "preload";
+      preload.as = "image";
+      preload.href = source;
+      preload.fetchPriority = "high";
+      preload.dataset.routeImage = "";
+      document.head.appendChild(preload);
+    });
     const canonical = document.querySelector('link[rel="canonical"]') || document.head.appendChild(document.createElement("link"));
     canonical.setAttribute("rel", "canonical");
     canonical.setAttribute("href", `${siteUrl}${path}`);
@@ -236,7 +262,7 @@ function Header({ menuOpen, setMenuOpen }) {
   return <>
     <header className={headerClasses} onFocusCapture={header.show}>
       <Link className="brand" to="/" aria-label="Cloud Studios home" tabIndex={menuOpen ? -1 : undefined}>
-        <img src={assets.logo} alt="Cloud Studios" decoding="async" />
+        <img src={assets.logo} alt="Cloud Studios" loading="eager" decoding="async" fetchPriority="high" />
       </Link>
       <nav className="desktop-nav" aria-label="Primary navigation">
         <div className="nav-dropdown">
@@ -269,14 +295,14 @@ function Home() {
     </section>
 
     <section id="spaces" className="service-mosaic">
-      <Link className="mosaic-card mosaic-office" to="/office-suites"><img src={assets.mosaicOffice} alt="Warm private office at Cloud Studios" loading="lazy" decoding="async" /><div><h2>Quiet Offices</h2><p>Private offices for focused teams.</p><ArrowDown /></div></Link>
-      <Link className="mosaic-card mosaic-meeting" to="/meeting-rooms"><img src={assets.mosaicMeeting} alt="Cloud Studios meeting room ready for a client session" loading="lazy" decoding="async" /><div><h2>Meeting &<br />Making</h2><p>Professional rooms, ready when you are.</p><ArrowDown /></div></Link>
-      <Link className="mosaic-card mosaic-address" to="/virtual-office-auckland"><img src={assets.mosaicAddress} alt="Cloud Studios building at 109 Great South Road" loading="lazy" decoding="async" /><div><h2>Professional<br />Address</h2><p>A credible Epsom address for business and mail.</p><ArrowDown /></div></Link>
-      <Link className="mosaic-card mosaic-brand" to="/community"><img src={assets.mosaicCommunity} alt="Professionals collaborating at Cloud Studios" loading="lazy" decoding="async" /><div><h2>Community</h2><p>A professional community built around focused work.</p><ArrowDown /></div></Link>
+      <Link className="mosaic-card mosaic-office" to="/office-suites"><img src={assets.mosaicOffice} alt="Warm private office at Cloud Studios" loading="eager" decoding="async" /><div><h2>Quiet Offices</h2><p>Private offices for focused teams.</p><ArrowDown /></div></Link>
+      <Link className="mosaic-card mosaic-meeting" to="/meeting-rooms"><img src={assets.mosaicMeeting} alt="Cloud Studios meeting room ready for a client session" loading="eager" decoding="async" /><div><h2>Meeting &<br />Making</h2><p>Professional rooms, ready when you are.</p><ArrowDown /></div></Link>
+      <Link className="mosaic-card mosaic-address" to="/virtual-office-auckland"><img src={assets.mosaicAddress} alt="Cloud Studios building at 109 Great South Road" loading="eager" decoding="async" /><div><h2>Professional<br />Address</h2><p>A credible Epsom address for business and mail.</p><ArrowDown /></div></Link>
+      <Link className="mosaic-card mosaic-brand" to="/community"><img src={assets.mosaicCommunity} alt="Professionals collaborating at Cloud Studios" loading="eager" decoding="async" /><div><h2>Community</h2><p>A professional community built around focused work.</p><ArrowDown /></div></Link>
     </section>
 
     <section className="editorial-section split-section" data-reveal><div><p className="eyebrow">A quieter way to work</p><h2>Professional space,<br /><em>without the noise.</em></h2></div><div><p>Cloud Studios is deliberately calm and low-density: a place for meaningful work, clear conversations and teams who value their environment.</p><Link className="text-link" to="/community">Meet the community <ArrowRight /></Link></div></section>
-    <section className="spaces-grid section-shell">{services.map((service, index) => <Link className="service-tile" to={service.path} key={service.path} data-reveal><figure><img src={service.image} alt={service.imageAlt} data-parallax loading="lazy" decoding="async" /></figure><span>0{index + 1}</span><h3>{service.title}</h3><p>{service.availability || service.price}</p><ArrowRight /></Link>)}</section>
+    <section className="spaces-grid section-shell">{services.map((service, index) => <Link className="service-tile" to={service.path} key={service.path} data-reveal><figure><img src={service.image} alt={service.imageAlt} data-parallax loading="eager" decoding="async" /></figure><span>0{index + 1}</span><h3>{service.title}</h3><p>{service.availability || service.price}</p><ArrowRight /></Link>)}</section>
     <LocationSection />
     <TourBand />
   </>;
@@ -294,7 +320,7 @@ function ServicePage({ service, kind }) {
     <ServiceFacts items={page.facts} />
     <section className="editorial-section split-section" data-reveal><div><p className="eyebrow">Made for clear work</p><h2>{kind === "meeting" ? "Everything ready, when you are." : "A considered place to settle in."}</h2></div><div><p>{service.summary}</p><ul className="tick-list">{service.features.map((item) => <li key={item}><Check />{item}</li>)}</ul></div></section>
     <PricingSection kind={kind} />
-    <section className="gallery-strip section-shell">{page.gallery.map((image, index) => <figure key={`${image}-${index}`} data-reveal><img src={image} alt={`${service.title} at Cloud Studios ${index + 1}`} loading="lazy" decoding="async" /></figure>)}</section>
+    <section className="gallery-strip section-shell">{page.gallery.map((image, index) => <figure key={`${image}-${index}`} data-reveal><img src={image} alt={`${service.title} at Cloud Studios ${index + 1}`} loading="eager" decoding="async" /></figure>)}</section>
     <ContextFaqs title={`${service.title} questions`} items={page.faqs} />
     <TourBand />
   </>;
@@ -325,7 +351,7 @@ function EditorialPage({ type }) {
 }
 
 function LocationSection() {
-  return <section id="location" className="location-section"><figure data-reveal><img src={assets.building} alt="Cloud Studios building at 109 Great South Road, Epsom" loading="lazy" decoding="async" /></figure><div data-reveal><p className="eyebrow">Epsom · Auckland</p><h2>Close to the city.<br /><em>Calm by design.</em></h2><address>{contact.address}</address><p>Near Newmarket with on-site parking available by arrangement.</p><a className="text-link" href={contact.maps} target="_blank" rel="noreferrer">Open in Google Maps <ArrowRight /></a></div></section>;
+  return <section id="location" className="location-section"><figure data-reveal><img src={assets.building} alt="Cloud Studios building at 109 Great South Road, Epsom" loading="eager" decoding="async" /></figure><div data-reveal><p className="eyebrow">Epsom · Auckland</p><h2>Close to the city.<br /><em>Calm by design.</em></h2><address>{contact.address}</address><p>Near Newmarket with on-site parking available by arrangement.</p><a className="text-link" href={contact.maps} target="_blank" rel="noreferrer">Open in Google Maps <ArrowRight /></a></div></section>;
 }
 
 function TourBand() {
@@ -341,7 +367,7 @@ function TourPage() {
 }
 
 function ContactCard({ tour = false }) {
-  return <aside className="contact-card"><img src={tour ? assets.meetingFour : assets.building} alt={tour ? "Cloud Studios meeting area" : "Cloud Studios exterior"} loading="lazy" decoding="async" /><div><p>{tour ? "Most tours take 10–15 minutes and there is no commitment." : "Prefer to contact the team directly?"}</p><small>Cloud Studios confirms availability directly.</small><a href={contact.phoneHref}><Phone />{contact.phone}</a><a href={`mailto:${contact.email}`}><EnvelopeSimple />{contact.email}</a><a href={contact.maps} target="_blank" rel="noreferrer"><MapPin />Get directions</a></div></aside>;
+  return <aside className="contact-card"><img src={tour ? assets.meetingFour : assets.building} alt={tour ? "Cloud Studios meeting area" : "Cloud Studios exterior"} loading="eager" decoding="async" /><div><p>{tour ? "Most tours take 10–15 minutes and there is no commitment." : "Prefer to contact the team directly?"}</p><small>Cloud Studios confirms availability directly.</small><a href={contact.phoneHref}><Phone />{contact.phone}</a><a href={`mailto:${contact.email}`}><EnvelopeSimple />{contact.email}</a><a href={contact.maps} target="_blank" rel="noreferrer"><MapPin />Get directions</a></div></aside>;
 }
 
 function EnquiryForm({ type }) {
@@ -473,7 +499,7 @@ function NotFound() {
 function Footer() {
   const serviceLinks = routes.slice(1, 7);
   const detailLinks = routes.slice(7);
-  return <footer className="site-footer"><div className="footer-lead"><img src={assets.logo} alt="Cloud Studios" loading="lazy" decoding="async" /><h2>A calmer place<br />to do <em>good work.</em></h2></div><div className="footer-links"><div><p>Workspaces</p>{serviceLinks.map(([path, label]) => <Link key={path} to={path}>{label}</Link>)}</div><div><p>Information</p>{detailLinks.map(([path, label]) => <Link key={path} to={path}>{label}</Link>)}</div><div><p>Visit</p><address>{contact.address}</address><a href={contact.phoneHref}>{contact.phone}</a><a href={`mailto:${contact.email}`}>{contact.email}</a></div></div><div className="footer-base"><span>{contact.brand}</span><span>© {new Date().getFullYear()} Cloud Studios</span></div></footer>;
+  return <footer className="site-footer"><div className="footer-lead"><img src={assets.logo} alt="Cloud Studios" loading="eager" decoding="async" /><h2>A calmer place<br />to do <em>good work.</em></h2></div><div className="footer-links"><div><p>Workspaces</p>{serviceLinks.map(([path, label]) => <Link key={path} to={path}>{label}</Link>)}</div><div><p>Information</p>{detailLinks.map(([path, label]) => <Link key={path} to={path}>{label}</Link>)}</div><div><p>Visit</p><address>{contact.address}</address><a href={contact.phoneHref}>{contact.phone}</a><a href={`mailto:${contact.email}`}>{contact.email}</a></div></div><div className="footer-base"><span>{contact.brand}</span><span>© {new Date().getFullYear()} Cloud Studios</span></div></footer>;
 }
 
 function MobileCallBar({ menuOpen }) {

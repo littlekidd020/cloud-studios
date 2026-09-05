@@ -34,6 +34,8 @@ export const assets = {
   mosaicCommunity: "/assets/cloud-studios/mosaic-community-v2.webp",
 };
 
+export const allImageSources = [...new Set(Object.values(assets))];
+
 export const routes = [
   ["/", "Home"],
   ["/office-suites", "Office Suites"],
@@ -219,6 +221,21 @@ export const pageMeta = {
   "/workplace-policy": { title: "Workplace Policy | Cloud Studios", description: "Professional conduct, access, shared-space, guest, safety and privacy expectations at Cloud Studios." },
   "/terms-of-service": { title: "Terms of Service | Cloud Studios", description: "Terms governing use of the Cloud Studios website, enquiries and confirmed bookings." },
 };
+
+export function imagePreloadsForPath(path) {
+  const routeImages = {
+    "/": [assets.desksTwo, assets.officeTwo, assets.meeting],
+    "/office-suites": [assets.office],
+    "/dedicated-desks": [assets.desks],
+    "/meeting-rooms": [assets.meetingM1],
+    "/virtual-office-auckland": [assets.virtual],
+    "/experiences": [assets.experiences],
+    "/community": [assets.community],
+    "/contact": [assets.building],
+    "/book-a-tour": [assets.meetingFour],
+  };
+  return [assets.logo, ...(routeImages[path] || [])];
+}
 
 export function structuredDataForPath(path) {
   const businessId = `${siteUrl}/#business`;

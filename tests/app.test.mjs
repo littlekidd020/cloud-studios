@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { availabilityChecked, classifyIntent, contact, pageMeta, pricing, routes, servicePages, siteUrl, structuredDataForPath, validateForm } from "../src/site.js";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { allImageSources, availabilityChecked, classifyIntent, contact, imagePreloadsForPath, pageMeta, pricing, routes, servicePages, siteUrl, structuredDataForPath, validateForm } from "../src/site.js";
 
 test("route manifest and shared business facts stay complete", () => {
   assert.equal(routes.length, 13);
@@ -26,6 +26,16 @@ test("homepage exposes one preferred Google site name", () => {
   assert.equal(website[0].name, "Cloud Studios");
   assert.equal(website[0].url, "https://cloudstudios.co.nz/");
   assert.equal(structuredDataForPath("/meeting-rooms")["@graph"].some((item) => item["@type"] === "WebSite"), false);
+});
+
+test("WebP images stay within the eager-loading budget", () => {
+  const directory = new URL("../public/assets/cloud-studios/", import.meta.url);
+  const webpFiles = readdirSync(directory).filter((file) => file.endsWith(".webp"));
+  const sizes = webpFiles.map((file) => statSync(new URL(file, directory)).size);
+  assert.ok(sizes.every((size) => size <= 320 * 1024));
+  assert.ok(sizes.reduce((total, size) => total + size, 0) <= 3.5 * 1024 * 1024);
+  assert.ok(allImageSources.every((source) => source.endsWith(".webp")));
+  assert.deepEqual(imagePreloadsForPath("/experiences"), ["/assets/cloud-studios/logo.webp", "/assets/cloud-studios/experiences-hero-v4.webp"]);
 });
 
 test("published pricing is present", () => {
