@@ -338,7 +338,8 @@ function PricingSection({ kind }) {
 }
 
 function PageHero({ eyebrow, title, intro, image, imageStyle, alt, kicker, action = { label: "Book a tour", to: "/book-a-tour" } }) {
-  return <section className="page-hero"><div className="page-hero-copy"><p className="eyebrow">{eyebrow}</p><h1 tabIndex="-1">{title}</h1><p>{intro}</p><strong>{kicker}</strong><Link className="primary-button" to={action.to} data-intent="service_cta" data-label={action.label}>{action.label.toLowerCase().includes("tour") || action.label.toLowerCase().includes("viewing") ? <CalendarBlank /> : null}{action.label}<ArrowRight /></Link></div><figure><img src={image} alt={alt} style={imageStyle} loading="eager" decoding="async" fetchPriority="high" /></figure></section>;
+  const compactTitle = typeof title === "string" && title.length > 24;
+  return <section className={`page-hero${compactTitle ? " page-hero-compact" : ""}`}><div className="page-hero-copy"><p className="eyebrow">{eyebrow}</p><h1 tabIndex="-1">{title}</h1><p>{intro}</p><strong>{kicker}</strong><Link className="primary-button" to={action.to} data-intent="service_cta" data-label={action.label}>{action.label.toLowerCase().includes("tour") || action.label.toLowerCase().includes("viewing") ? <CalendarBlank /> : null}{action.label}<ArrowRight /></Link></div><figure><img src={image} alt={alt} style={imageStyle} loading="eager" decoding="async" fetchPriority="high" /></figure></section>;
 }
 
 const editorialContent = {

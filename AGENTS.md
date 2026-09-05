@@ -24,7 +24,7 @@ Use the user's uploaded lounge discussion photo (experiences-hero-v4.webp) for t
 
 Keep the desktop hero collage level and orderly, using the responsive composition's proportions: a right-shifted wide top frame, a left inset middle frame, and a right-shifted wide lower frame with narrow cream separation. Avoid oversized ribbons, deep organic cuts and competing curves across photographs.
 
-Use the Office Suites right-side hero image frame as the canonical media layout for every page with a right-side hero image except Contact. Keep its width, 7:4 desktop aspect ratio, margins and curved mask consistent across service, editorial and Location pages, and preserve the shared fixed-height full-width treatment on tablet and phone.
+Use the Office Suites right-side hero image frame as the canonical media layout for every page with a right-side hero image except Contact. Keep its width, responsive height, margins and curved mask consistent across service, editorial and Location pages, preserve the shared fixed-height full-width treatment on tablet and phone, and keep a uniform 28px gap between the image bottom and the following section at every breakpoint.
 
 Keep proof-row icon circles visibly inset from every outer edge and column divider at desktop, tablet and phone widths.
 
