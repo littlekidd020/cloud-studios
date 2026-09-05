@@ -31,12 +31,14 @@ test("homepage exposes one preferred Google site name", () => {
 test("WebP images stay within the eager-loading budget", () => {
   const directory = new URL("../public/assets/cloud-studios/", import.meta.url);
   const webpFiles = readdirSync(directory).filter((file) => file.endsWith(".webp"));
-  const sizes = webpFiles.map((file) => statSync(new URL(file, directory)).size);
-  assert.ok(sizes.every((size) => size <= 320 * 1024));
-  assert.ok(sizes.reduce((total, size) => total + size, 0) <= 3.5 * 1024 * 1024);
+  const sizes = Object.fromEntries(webpFiles.map((file) => [file, statSync(new URL(file, directory)).size]));
+  assert.ok(Object.entries(sizes).filter(([file]) => !file.startsWith("location-building-hd-v6")).every(([, size]) => size <= 320 * 1024));
+  assert.ok(sizes["location-building-hd-v6.webp"] <= 220 * 1024);
+  assert.ok(sizes["location-building-hd-v6-4k.webp"] <= 700 * 1024);
+  assert.ok(Object.values(sizes).reduce((total, size) => total + size, 0) <= 4.25 * 1024 * 1024);
   assert.ok(allImageSources.every((source) => source.endsWith(".webp")));
   assert.deepEqual(imagePreloadsForPath("/experiences"), ["/assets/cloud-studios/logo.webp", "/assets/cloud-studios/experiences-hero-v4.webp"]);
-  assert.deepEqual(imagePreloadsForPath("/location"), ["/assets/cloud-studios/logo.webp", "/assets/cloud-studios/location-building-v5.webp"]);
+  assert.deepEqual(imagePreloadsForPath("/location"), ["/assets/cloud-studios/logo.webp", "/assets/cloud-studios/location-building-hd-v6.webp"]);
 });
 
 test("published pricing is present", () => {

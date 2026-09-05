@@ -355,7 +355,7 @@ function LocationPage() {
   return <>
     <section className="page-hero location-page-hero">
       <div className="page-hero-copy"><p className="eyebrow">Epsom · Auckland</p><h1 tabIndex="-1">Close to the city.<br /><em>Calm by design.</em></h1><p>{contact.address}</p><strong>Near Newmarket · on-site parking by arrangement</strong><a className="primary-button" href={contact.maps} target="_blank" rel="noreferrer">Open in Google Maps <ArrowRight /></a></div>
-      <figure><img src={assets.location} alt="Cloud Studios building at 109 Great South Road, Epsom" loading="eager" decoding="async" fetchPriority="high" /></figure>
+      <figure><img src={assets.location} srcSet={`${assets.location} 2048w, ${assets.location4k} 4096w`} sizes="(max-width: 780px) 100vw, 55vw" alt="Cloud Studios building at 109 Great South Road, Epsom" loading="eager" decoding="sync" fetchPriority="high" /></figure>
     </section>
     <ServiceFacts items={[["Address", "Level 2, 109 Great South Road"], ["Suburb", "Epsom, Auckland 1051"], ["Nearby", "Close to Newmarket"], ["Parking", "On-site by arrangement"]]} />
     <TourBand />
@@ -363,7 +363,7 @@ function LocationPage() {
 }
 
 function LocationSection() {
-  return <section id="location" className="location-section"><figure data-reveal><img src={assets.location} alt="Cloud Studios building at 109 Great South Road, Epsom" loading="eager" decoding="async" /></figure><div data-reveal><p className="eyebrow">Epsom · Auckland</p><h2>Close to the city.<br /><em>Calm by design.</em></h2><address>{contact.address}</address><p>Near Newmarket with on-site parking available by arrangement.</p><Link className="text-link" to="/location">View location <ArrowRight /></Link></div></section>;
+  return <section id="location" className="location-section"><figure data-reveal><img src={assets.location} srcSet={`${assets.location} 2048w, ${assets.location4k} 4096w`} sizes="(max-width: 780px) 100vw, 55vw" alt="Cloud Studios building at 109 Great South Road, Epsom" loading="eager" decoding="sync" /></figure><div data-reveal><p className="eyebrow">Epsom · Auckland</p><h2>Close to the city.<br /><em>Calm by design.</em></h2><address>{contact.address}</address><p>Near Newmarket with on-site parking available by arrangement.</p><Link className="text-link" to="/location">View location <ArrowRight /></Link></div></section>;
 }
 
 function TourBand() {
