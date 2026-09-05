@@ -10,7 +10,7 @@ import { allImageSources, assets, availabilityChecked, classifyIntent, contact, 
 
 const primaryNav = [
   ["/meeting-rooms", "Meeting rooms"], ["/virtual-office-auckland", "Virtual office"],
-  ["/experiences", "Experiences"], ["/#location", "Location"], ["/community", "Community"], ["/contact", "Contact"],
+  ["/experiences", "Experiences"], ["/location", "Location"], ["/community", "Community"], ["/contact", "Contact"],
 ];
 
 const warmedImages = new Map();
@@ -108,6 +108,7 @@ function Site() {
         <Route path="/privacy-policy" element={<PolicyPage type="privacy" />} />
         <Route path="/workplace-policy" element={<PolicyPage type="workplace" />} />
         <Route path="/terms-of-service" element={<PolicyPage type="terms" />} />
+        <Route path="/location" element={<LocationPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </main>
@@ -350,8 +351,19 @@ function EditorialPage({ type }) {
   return <><PageHero eyebrow={page.eyebrow} title={page.title} intro={page.intro} image={page.image} imageStyle={page.imageStyle} alt={`${page.title} at Cloud Studios`} kicker="Epsom, Auckland" action={page.action} /><section className="numbered-editorial section-shell">{page.sections.map(([title, copy], index) => <article key={title} data-reveal><span>0{index + 1}</span><h2>{title}</h2><p>{copy}</p></article>)}</section><section className="editorial-note dark-section" data-reveal><p className="eyebrow">{page.note[0]}</p><h2>{page.note[1]}</h2><p>{page.note[2]}</p><Link className="light-button" to={page.action.to}>{page.action.label}<ArrowRight /></Link></section><TourBand /></>;
 }
 
+function LocationPage() {
+  return <>
+    <section className="page-hero location-page-hero">
+      <div className="page-hero-copy"><p className="eyebrow">Epsom · Auckland</p><h1 tabIndex="-1">Close to the city.<br /><em>Calm by design.</em></h1><p>{contact.address}</p><strong>Near Newmarket · on-site parking by arrangement</strong><a className="primary-button" href={contact.maps} target="_blank" rel="noreferrer">Open in Google Maps <ArrowRight /></a></div>
+      <figure><img src={assets.location} alt="Cloud Studios building at 109 Great South Road, Epsom" loading="eager" decoding="async" fetchPriority="high" /></figure>
+    </section>
+    <ServiceFacts items={[["Address", "Level 2, 109 Great South Road"], ["Suburb", "Epsom, Auckland 1051"], ["Nearby", "Close to Newmarket"], ["Parking", "On-site by arrangement"]]} />
+    <TourBand />
+  </>;
+}
+
 function LocationSection() {
-  return <section id="location" className="location-section"><figure data-reveal><img src={assets.building} alt="Cloud Studios building at 109 Great South Road, Epsom" loading="eager" decoding="async" /></figure><div data-reveal><p className="eyebrow">Epsom · Auckland</p><h2>Close to the city.<br /><em>Calm by design.</em></h2><address>{contact.address}</address><p>Near Newmarket with on-site parking available by arrangement.</p><a className="text-link" href={contact.maps} target="_blank" rel="noreferrer">Open in Google Maps <ArrowRight /></a></div></section>;
+  return <section id="location" className="location-section"><figure data-reveal><img src={assets.location} alt="Cloud Studios building at 109 Great South Road, Epsom" loading="eager" decoding="async" /></figure><div data-reveal><p className="eyebrow">Epsom · Auckland</p><h2>Close to the city.<br /><em>Calm by design.</em></h2><address>{contact.address}</address><p>Near Newmarket with on-site parking available by arrangement.</p><Link className="text-link" to="/location">View location <ArrowRight /></Link></div></section>;
 }
 
 function TourBand() {

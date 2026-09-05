@@ -28,6 +28,7 @@ export const assets = {
   experiences: "/assets/cloud-studios/experiences-hero-v4.webp",
   community: "/assets/cloud-studios/community-hero-v3.webp",
   building: "/assets/cloud-studios/building-v4.webp",
+  location: "/assets/cloud-studios/location-building-v5.webp",
   mosaicOffice: "/assets/cloud-studios/mosaic-office-v2.webp",
   mosaicMeeting: "/assets/cloud-studios/mosaic-meeting-v2.webp",
   mosaicAddress: "/assets/cloud-studios/mosaic-address-v2.webp",
@@ -50,6 +51,7 @@ export const routes = [
   ["/privacy-policy", "Privacy Policy"],
   ["/workplace-policy", "Workplace Policy"],
   ["/terms-of-service", "Terms of Service"],
+  ["/location", "Location"],
 ];
 
 export const services = [
@@ -220,6 +222,7 @@ export const pageMeta = {
   "/privacy-policy": { title: "Privacy Policy | Cloud Studios", description: "How Cloud Studios handles information submitted through enquiries, tour requests and website use." },
   "/workplace-policy": { title: "Workplace Policy | Cloud Studios", description: "Professional conduct, access, shared-space, guest, safety and privacy expectations at Cloud Studios." },
   "/terms-of-service": { title: "Terms of Service | Cloud Studios", description: "Terms governing use of the Cloud Studios website, enquiries and confirmed bookings." },
+  "/location": { title: "Cloud Studios Location | Epsom Auckland", description: "Find Cloud Studios at Level 2, 109 Great South Road, Epsom, Auckland, close to Newmarket with on-site parking available by arrangement." },
 };
 
 export function imagePreloadsForPath(path) {
@@ -233,6 +236,7 @@ export function imagePreloadsForPath(path) {
     "/community": [assets.community],
     "/contact": [assets.building],
     "/book-a-tour": [assets.meetingFour],
+    "/location": [assets.location],
   };
   return [assets.logo, ...(routeImages[path] || [])];
 }

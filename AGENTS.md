@@ -46,4 +46,6 @@ Keep the organic-search site name signals consistent as Cloud Studios: the home-
 
 Load every displayed WebP eagerly on desktop and mobile, preload each route's logo and hero imagery, and warm the remaining image cache as soon as the app mounts so client-side route changes show photographs immediately. Keep the static home collage visible until all WebGL textures are ready.
 
+Use `/location` as the public Location URL in every navigation surface. Keep the uploaded dusk exterior photograph as the Location page and Location-section image on desktop and mobile; do not link Location navigation to the former `/#location` anchor.
+
 Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts/prepare-sites-build.mjs`, and `tests/sites-worker.test.mjs` intact so the same local prototype can be handed to Sites. Before a Sites handoff, run `npm run build` and `npm run test:sites`; the build must leave `dist/client/index.html`, `dist/server/index.js`, and `dist/.openai/hosting.json`.

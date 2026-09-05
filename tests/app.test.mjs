@@ -4,11 +4,11 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { allImageSources, availabilityChecked, classifyIntent, contact, imagePreloadsForPath, pageMeta, pricing, routes, servicePages, siteUrl, structuredDataForPath, validateForm } from "../src/site.js";
 
 test("route manifest and shared business facts stay complete", () => {
-  assert.equal(routes.length, 13);
+  assert.equal(routes.length, 14);
   assert.deepEqual(routes.map(([path]) => path), [
     "/", "/office-suites", "/dedicated-desks", "/meeting-rooms",
     "/virtual-office-auckland", "/experiences", "/community", "/contact",
-    "/book-a-tour", "/faq", "/privacy-policy", "/workplace-policy", "/terms-of-service",
+    "/book-a-tour", "/faq", "/privacy-policy", "/workplace-policy", "/terms-of-service", "/location",
   ]);
   assert.equal(contact.email, "admin@cloudstudios.co.nz");
   assert.equal(contact.phoneHref, "tel:+6492188670");
@@ -36,6 +36,7 @@ test("WebP images stay within the eager-loading budget", () => {
   assert.ok(sizes.reduce((total, size) => total + size, 0) <= 3.5 * 1024 * 1024);
   assert.ok(allImageSources.every((source) => source.endsWith(".webp")));
   assert.deepEqual(imagePreloadsForPath("/experiences"), ["/assets/cloud-studios/logo.webp", "/assets/cloud-studios/experiences-hero-v4.webp"]);
+  assert.deepEqual(imagePreloadsForPath("/location"), ["/assets/cloud-studios/logo.webp", "/assets/cloud-studios/location-building-v5.webp"]);
 });
 
 test("published pricing is present", () => {
