@@ -32,7 +32,7 @@ export const assets = {
   location4k: "/assets/cloud-studios/location-building-hd-v6-4k.webp",
   mosaicOffice: "/assets/cloud-studios/mosaic-office-v2.webp",
   mosaicMeeting: "/assets/cloud-studios/mosaic-meeting-v2.webp",
-  mosaicAddress: "/assets/cloud-studios/mosaic-address-v2.webp",
+  mosaicAddress: "/assets/cloud-studios/location-building-hd-v6.webp",
   mosaicCommunity: "/assets/cloud-studios/mosaic-community-v2.webp",
 };
 

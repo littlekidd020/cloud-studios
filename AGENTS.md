@@ -50,4 +50,6 @@ Use `/location` as the public Location URL in every navigation surface. Keep the
 
 Keep the Location exterior image as the 4096×2340 high-resolution restoration of the user's 109_2.jpg, with its matching 2048×1170 responsive derivative for instant display. Preserve the original photograph's exact composition and visible content; do not substitute a generative reinterpretation that changes the building, vegetation, road, vehicles, signs or sky.
 
+Use the same 2048×1170 Location exterior WebP in the home-page Professional Address mosaic card on desktop and mobile.
+
 Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts/prepare-sites-build.mjs`, and `tests/sites-worker.test.mjs` intact so the same local prototype can be handed to Sites. Before a Sites handoff, run `npm run build` and `npm run test:sites`; the build must leave `dist/client/index.html`, `dist/server/index.js`, and `dist/.openai/hosting.json`.
