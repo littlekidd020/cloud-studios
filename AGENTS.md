@@ -24,6 +24,8 @@ Use the user's uploaded lounge discussion photo (experiences-hero-v4.webp) for t
 
 Keep the desktop hero collage level and orderly, using the responsive composition's proportions: a right-shifted wide top frame, a left inset middle frame, and a right-shifted wide lower frame with narrow cream separation. Avoid oversized ribbons, deep organic cuts and competing curves across photographs.
 
+Use the Office Suites right-side hero image frame as the canonical media layout for every page with a right-side hero image except Contact. Keep its width, 7:4 desktop aspect ratio, margins and curved mask consistent across service, editorial and Location pages, and preserve the shared fixed-height full-width treatment on tablet and phone.
+
 Keep proof-row icon circles visibly inset from every outer edge and column divider at desktop, tablet and phone widths.
 
 Production enquiry and tour forms must retain the legacy admin and customer emails, tour calendar attachment, honeypot validation, and durable submission log. Keep mail credentials outside Git and store form records outside `public_html` so automated deployments cannot expose or erase them.
