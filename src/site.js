@@ -22,6 +22,7 @@ export const assets = {
   desksTwo: "/assets/cloud-studios/desks-d2-v4.webp",
   meeting: "/assets/cloud-studios/meeting-hero-v2.webp",
   meetingM1: "/assets/cloud-studios/meeting-m1.webp",
+  meetingClassroom: "/assets/cloud-studios/meeting-classroom-v3.webp",
   meetingTwo: "/assets/cloud-studios/meeting-2-v2.webp",
   meetingFour: "/assets/cloud-studios/meeting-4-v2.webp",
   virtual: "/assets/cloud-studios/virtual-hero-v2.webp",
@@ -165,7 +166,7 @@ export const servicePages = {
     intro: "A flexible room for workshops, presentations and client conversations, close to Newmarket in Epsom.",
     kicker: "$60 / hour (+GST) · clear confirmation",
     action: { label: "Check availability", to: "/contact?interest=Meeting%20Rooms#enquiry" },
-    gallery: [assets.meetingM1, assets.meetingFour, assets.meetingM1],
+    gallery: [assets.meetingM1, assets.meetingFour, assets.meetingClassroom],
     facts: [
       ["Capacity", "12 boardroom-style or 20+ in presentation format"],
       ["AV included", "65-inch interactive display, HDMI and fast internet"],

@@ -18,7 +18,7 @@ Keep generated photography grounded in the genuine source's ordinary material va
 
 Compose service photography for its actual rendered slot: use landscape-friendly gallery ratios, an establishing-detail-establishing sequence and explicit focal crops instead of forcing every source into tall generic frames.
 
-On the meeting-rooms page, use the user's M1 photo (meeting-m1.webp) for the hero and the first and third gallery images on desktop and mobile. Preserve the middle gallery image and all existing image-frame dimensions, aspect ratios and crops.
+On the meeting-rooms page, use the user's M1 photo (meeting-m1.webp) for the hero and first gallery image, preserve the middle gallery image, and use the uploaded classroom/training-room photo for the third/rightmost gallery image on desktop and mobile. Preserve all existing image-frame dimensions, aspect ratios and crops.
 
 Use the user's uploaded lounge discussion photo (experiences-hero-v4.webp) for the Experiences hero at every breakpoint, preserving the existing image-frame dimensions and layout.
 
